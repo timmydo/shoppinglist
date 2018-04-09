@@ -3,4 +3,4 @@ bin/
 out/
 .vs/
 .vscode/
-.suo
+*.suo
