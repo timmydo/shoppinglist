@@ -1,11 +1,14 @@
 ﻿using backend.Interfaces.Database;
 using backend.Models.Config;
 using backend.Models.Documents;
+using backend.Models.Exceptions;
+using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace backend.Services.Database
@@ -36,19 +39,83 @@ namespace backend.Services.Database
             this.client = new DocumentClient(new Uri(this.options.ServiceEndpoint), authKey, cp);
         }
 
-        public Task Create<T>(T obj) where T : IDocumentObject
+        public async Task Create<T>(T obj) where T : IDocumentObject
         {
-            throw new NotImplementedException();
+            var uri = UriFactory.CreateDocumentCollectionUri(options.Database, options.Collection);
+            var item = documentSerializer.Serialize(obj);
+            try
+            {
+                var res = await client.CreateDocumentAsync(uri, item);
+                obj.Etag = res.Resource.ETag;
+            }
+            catch (DocumentClientException e)
+            {
+                if (e.StatusCode != HttpStatusCode.Conflict)
+                {
+                    throw;
+                }
+            }
         }
 
-        public Task<T> Read<T>(string id) where T : IDocumentObject
+        public async Task<T> Read<T>(string id) where T : IDocumentObject
         {
-            throw new NotImplementedException();
+            try
+            {
+                var document = await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(options.Database, options.Collection, id));
+                var obj = (DatabaseObject)(dynamic)document;
+                return documentSerializer.Deserialize<T>(obj);
+            }
+            catch (DocumentClientException e)
+            {
+                if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return default(T);
+                }
+                else
+                {
+                    throw new BackendException(e.Message, e);
+                }
+            }
         }
 
-        public Task Write<T>(T obj) where T : IDocumentObject
+        public async Task Write<T>(T obj) where T : IDocumentObject
         {
-            throw new NotImplementedException();
+
+            var uri = UriFactory.CreateDocumentUri(options.Database, options.Collection, obj.Id);
+            var ro = new RequestOptions
+            {
+                AccessCondition = new AccessCondition()
+                {
+                    Condition = obj.Etag,
+                    Type = AccessConditionType.IfMatch,
+                },
+            };
+
+            try
+            {
+                var serialized = documentSerializer.Serialize(obj);
+                var res = await client.ReplaceDocumentAsync(uri, serialized, ro);
+                obj.Etag = res.Resource.ETag;
+            }
+            catch (DocumentClientException de)
+            {
+                if (de.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    throw new EtagMismatchException("ETagMismatch", de);
+                }
+                else if (de.StatusCode.HasValue && (int)de.StatusCode.Value == 429)
+                {
+                    throw new ThrottledException(nameof(Write));
+                }
+                else if (de.StatusCode.HasValue && (int)de.StatusCode.Value == 408)
+                {
+                    throw new BackendTimeoutException(nameof(Write));
+                }
+                else
+                {
+                    throw new BackendException(de.Message, de);
+                }
+            }
         }
     }
 }
