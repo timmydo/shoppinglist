@@ -12,7 +12,6 @@ namespace backendtests
         public void BinaryEncoding(byte[] input, string output)
         {
             var tc = Setup();
-            var y = tc.BinaryEncoder.GetBytes(output);
             Assert.Equal(tc.BinaryEncoder.GetString(input), output);
             Assert.Equal(tc.BinaryEncoder.GetBytes(output), input);
         }
@@ -22,8 +21,6 @@ namespace backendtests
         public void Compression(byte[] input, byte[] output)
         {
             var tc = Setup();
-            var y = tc.Compressor.Compress(input);
-
             Assert.Equal(tc.Compressor.Compress(input), output);
             Assert.Equal(tc.Compressor.Decompress(output), input);
         }

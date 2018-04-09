@@ -10,13 +10,13 @@ namespace backend.Services.Database
 {
     public class DocumentSerializer : IDocumentSerializer
     {
-        private readonly ICompressor stringCompressor;
+        private readonly ICompressor compressor;
         private readonly IBinaryEncoder binaryEncoder;
         private readonly JsonSerializerSettings jsonSettings;
 
-        public DocumentSerializer(ICompressor stringCompressor, IBinaryEncoder binaryEncoder)
+        public DocumentSerializer(ICompressor compressor, IBinaryEncoder binaryEncoder)
         {
-            this.stringCompressor = stringCompressor;
+            this.compressor = compressor;
             this.binaryEncoder = binaryEncoder;
             this.jsonSettings = new JsonSerializerSettings
             {
@@ -25,43 +25,44 @@ namespace backend.Services.Database
             };
         }
 
-        public UserObject Deserialize(DatabaseObject src)
+        public T Deserialize<T>(DatabaseObject src) where T : IDocumentObject
         {
             if (src.Version == 1)
             {
-                return DeserializeV1(src);
+                return DeserializeV1<T>(src);
             }
 
             throw new ArgumentOutOfRangeException(nameof(src.Version));
         }
 
-        public DatabaseObject Serialize(UserObject src)
+        public DatabaseObject Serialize<T>(T src) where T : IDocumentObject
         {
             return SerializeV1(src);
         }
 
-        private DatabaseObject SerializeV1(UserObject src)
+        private DatabaseObject SerializeV1<T>(T src) where T : IDocumentObject
         {
             var serializedString = JsonConvert.SerializeObject(src, Formatting.None, jsonSettings);
-            var data = stringCompressor.Compress(Encoding.UTF8.GetBytes(serializedString));
+            var data = compressor.Compress(Encoding.UTF8.GetBytes(serializedString));
 
             return new DatabaseObject()
             {
                 Data = binaryEncoder.GetString(data),
                 Etag = src.Etag,
                 Id = src.Id,
+                Version = 1,
             };
         }
 
-        private UserObject DeserializeV1(DatabaseObject src)
+        private T DeserializeV1<T>(DatabaseObject src) where T : IDocumentObject
         {
-            var decompressedJson = Encoding.UTF8.GetString(stringCompressor.Decompress(binaryEncoder.GetBytes(src.Data)));
+            var decompressedJson = Encoding.UTF8.GetString(compressor.Decompress(binaryEncoder.GetBytes(src.Data)));
             if (string.IsNullOrEmpty(decompressedJson))
             {
                 throw new InvalidOperationException("json is empty");
             }
 
-            var decompressed = JsonConvert.DeserializeObject<UserObject>(decompressedJson, jsonSettings);
+            var decompressed = JsonConvert.DeserializeObject<T>(decompressedJson, jsonSettings);
             decompressed.Etag = src.Etag;
             decompressed.Id = src.Id;
             return decompressed;

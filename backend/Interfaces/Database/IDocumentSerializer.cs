@@ -4,8 +4,8 @@ namespace backend.Interfaces.Database
 {
     public interface IDocumentSerializer
     {
-        UserObject Deserialize(DatabaseObject src);
+        T Deserialize<T>(DatabaseObject src) where T : IDocumentObject;
 
-        DatabaseObject Serialize(UserObject src);
+        DatabaseObject Serialize<T>(T src) where T : IDocumentObject;
     }
 }

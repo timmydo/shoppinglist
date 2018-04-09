@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace backend.Models.Documents
 {
-    public class UserObject
+    public class UserObject : IDocumentObject
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }

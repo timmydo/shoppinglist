@@ -11,7 +11,7 @@ namespace backend.Models.Documents
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
-        [JsonProperty("etag")]
+        [JsonProperty(PropertyName = "etag")]
         public string Etag { get; set; }
 
         [JsonProperty(PropertyName = "v")]
