@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 
 namespace backend.Interfaces.Infrastructure
 {
-    public interface IDependencyTracker
+    public interface IDependencyInvocation
     {
-        Task<T> TrackAsync<T>(string area, string method, Func<IDependencyInvocation, Task<T>> action);
     }
 }
