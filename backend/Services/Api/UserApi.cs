@@ -16,16 +16,23 @@ namespace backend.Services.Api
     {
         private readonly IDatabase database;
         private readonly ITokenBuilder tokenBuilder;
+        private readonly IExternalTokenValidator externalTokenValidator;
 
-        public UserApi(IDatabase database, ITokenBuilder tokenBuilder)
+        public UserApi(IDatabase database, ITokenBuilder tokenBuilder, IExternalTokenValidator externalTokenValidator)
         {
             this.database = database;
             this.tokenBuilder = tokenBuilder;
+            this.externalTokenValidator = externalTokenValidator;
         }
 
-        public async Task<GetMyAccountResponse> GetMyAccount()
+        public async Task<GetMyAccountResponse> GetAccount(string id)
         {
             var user = await database.Read<UserObject>("id1");
+            if (user == null)
+            {
+                return null;
+            }
+
             var response = new GetMyAccountResponse()
             {
                 Lists = user.Lists
@@ -39,9 +46,22 @@ namespace backend.Services.Api
             throw new NotImplementedException();
         }
 
-        public Task<TokenResponse> TokenRequest(string t)
+        public async Task<TokenResponse> TokenRequest(string externalToken)
         {
-            throw new NotImplementedException();
+            await Task.Delay(1);
+            var validationResult = externalTokenValidator.Validate(externalToken);
+            // todo fixme
+            //if (validationResult.Valid)
+            {
+                var token = tokenBuilder.Build("fixme");
+                return token;
+            }
+
+            return new TokenResponse()
+            {
+                Token = null,
+                ExpiresIn = 0,
+            };
         }
     }
 }

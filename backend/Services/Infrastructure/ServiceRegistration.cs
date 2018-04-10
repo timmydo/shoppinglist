@@ -21,6 +21,7 @@ namespace backend.Services.Infrastructure
             container.AddSingleton<ITokenBuilder, TokenBuilder>();
             container.AddSingleton<IExternalTokenValidator, ExternalTokenValidator>();
             container.AddSingleton<IUserApi, UserApi>();
+            container.AddSingleton<IUserService, UserService>();
         }
     }
 }

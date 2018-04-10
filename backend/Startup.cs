@@ -42,6 +42,8 @@ namespace backend
             services.Configure<DatabaseSettings>(Configuration.GetSection("database"));
             services.Configure<SecretSettings>(Configuration.GetSection("secrets"));
             services.Configure<JwtSettings>(Configuration.GetSection("jwt"));
+            services.Configure<ExternalTokenSettings>(Configuration.GetSection("sso"));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             var jwtConfig = new JwtSettings();
             Configuration.GetSection("jwt").Bind(jwtConfig);
@@ -57,6 +59,7 @@ namespace backend
                 ValidAudiences = jwtConfig.ValidAudiences.Split(',').Select(iss => iss.Trim()).ToArray(),
                 ValidIssuers = jwtConfig.ValidIssuers.Split(',').Select(iss => iss.Trim()).ToArray(),
                 IssuerSigningKeys = jwtConfig.SymmetricSigningKeys.Split(',').Where(ssk => !string.IsNullOrWhiteSpace(ssk)).Select(ssk => new SymmetricSecurityKey(Convert.FromBase64String(sm.Get(ssk.Trim())))).ToArray(),
+                RequireSignedTokens = true,
             };
 
             services.AddAuthentication(ao =>
@@ -81,6 +84,7 @@ namespace backend
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseAuthentication();
             app.UseMiddleware<TimeoutMiddleware>(5000);
             app.UseDefaultFiles();
             app.UseStaticFiles();

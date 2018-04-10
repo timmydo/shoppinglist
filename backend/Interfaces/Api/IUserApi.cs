@@ -6,7 +6,7 @@ namespace backend.Interfaces.Api
 {
     public interface IUserApi
     {
-        Task<GetMyAccountResponse> GetMyAccount();
+        Task<GetMyAccountResponse> GetAccount(string id);
 
         Task<ListResponse> ListRequest(ListRequest request);
 

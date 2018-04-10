@@ -1,7 +1,9 @@
 using backend.Interfaces.Api;
+using backend.Interfaces.Auth;
 using backend.Models.Requests;
 using backend.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -11,17 +13,34 @@ namespace backend.Controllers
     public class V1Controller : Controller
     {
         private readonly IUserApi userApi;
+        private readonly IUserService userService;
 
-        public V1Controller(IUserApi userApi)
+        public V1Controller(IUserApi userApi, IUserService userService)
         {
             this.userApi = userApi;
+            this.userService = userService;
         }
 
         [Authorize]
         [HttpGet("me")]
         public async Task<GetMyAccountResponse> GetMyAccount()
         {
-            return await userApi.GetMyAccount();
+            var user = userService.GetCurrentUser();
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
+
+            var res = await userApi.GetAccount(user.Id);
+            if (res == null)
+            {
+                HttpContext.Response.StatusCode = 404;
+                return null;
+            }
+
+            return res;
         }
 
         [Authorize]
@@ -34,6 +53,12 @@ namespace backend.Controllers
         [HttpGet("token")]
         public async Task<TokenResponse> TokenRequest(string t)
         {
+            if (string.IsNullOrEmpty(t))
+            {
+                HttpContext.Response.StatusCode = 400;
+                return null;
+            }
+
             return await userApi.TokenRequest(t);
         }
     }
