@@ -6,5 +6,8 @@ namespace backend.Models.Documents
     {
         [JsonProperty(PropertyName = "n")]
         public string Name { get; set; }
+
+        [JsonProperty(PropertyName = "s")]
+        public ListItemStates State { get; set; }
     }
 }

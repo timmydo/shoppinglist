@@ -61,7 +61,14 @@ namespace backend.Services.Database
         {
             try
             {
-                var document = await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(options.Database, options.Collection, id));
+                var ro = new RequestOptions
+                {
+                    PartitionKey = new PartitionKey(id),
+                };
+
+                var uri = UriFactory.CreateDocumentUri(options.Database, options.Collection, id);
+
+                var document = await client.ReadDocumentAsync(uri, ro);
                 var obj = (DatabaseObject)(dynamic)document;
                 return documentSerializer.Deserialize<T>(obj);
             }

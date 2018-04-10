@@ -9,6 +9,6 @@ namespace backend.Models.Documents
         public string Id { get; set; }
 
         [JsonProperty(PropertyName = "i")]
-        public IList<ListItemObject> Lists { get; set; }
+        public IList<ListItemObject> Items { get; set; }
     }
 }

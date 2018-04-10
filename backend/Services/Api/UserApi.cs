@@ -1,6 +1,8 @@
 ﻿using backend.Interfaces.Api;
+using backend.Interfaces.Auth;
 using backend.Interfaces.Database;
 using backend.Models.Documents;
+using backend.Models.Requests;
 using backend.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,10 +15,12 @@ namespace backend.Services.Api
     public class UserApi : IUserApi
     {
         private readonly IDatabase database;
+        private readonly ITokenBuilder tokenBuilder;
 
-        public UserApi(IDatabase database)
+        public UserApi(IDatabase database, ITokenBuilder tokenBuilder)
         {
             this.database = database;
+            this.tokenBuilder = tokenBuilder;
         }
 
         public async Task<GetMyAccountResponse> GetMyAccount()
@@ -28,6 +32,16 @@ namespace backend.Services.Api
             };
 
             return response;
+        }
+
+        public Task<ListResponse> ListRequest(ListRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TokenResponse> TokenRequest(string t)
+        {
+            throw new NotImplementedException();
         }
     }
 }
