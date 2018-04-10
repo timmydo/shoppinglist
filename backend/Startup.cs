@@ -82,6 +82,8 @@ namespace backend
             }
 
             app.UseMiddleware<TimeoutMiddleware>(5000);
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
