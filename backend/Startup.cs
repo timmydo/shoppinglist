@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -41,36 +41,9 @@ namespace backend
 
             services.Configure<DatabaseSettings>(Configuration.GetSection("database"));
             services.Configure<SecretSettings>(Configuration.GetSection("secrets"));
-            services.Configure<JwtSettings>(Configuration.GetSection("jwt"));
-            services.Configure<ExternalTokenSettings>(Configuration.GetSection("sso"));
+            services.Configure<InternalTokenSettings>(Configuration.GetSection("internal"));
+            services.Configure<ExternalTokenSettings>(Configuration.GetSection("external"));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            var jwtConfig = new JwtSettings();
-            Configuration.GetSection("jwt").Bind(jwtConfig);
-            var sp = services.BuildServiceProvider();
-            var sm = sp.GetRequiredService<Interfaces.Database.ISecretStore>();
-
-            var tvp = new TokenValidationParameters()
-            {
-                ValidateAudience = jwtConfig.ValidateAudience,
-                ValidateIssuer = jwtConfig.ValidateIssuer,
-                ValidateLifetime = jwtConfig.ValidateLifetime,
-                ValidateIssuerSigningKey = jwtConfig.ValidateIssuerSigningKey,
-                ValidAudiences = jwtConfig.ValidAudiences.Split(',').Select(iss => iss.Trim()).ToArray(),
-                ValidIssuers = jwtConfig.ValidIssuers.Split(',').Select(iss => iss.Trim()).ToArray(),
-                IssuerSigningKeys = jwtConfig.SymmetricSigningKeys.Split(',').Where(ssk => !string.IsNullOrWhiteSpace(ssk)).Select(ssk => new SymmetricSecurityKey(Convert.FromBase64String(sm.Get(ssk.Trim())))).ToArray(),
-                RequireSignedTokens = true,
-            };
-
-            services.AddAuthentication(ao =>
-            {
-                ao.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(jwo =>
-                {
-                    jwo.Authority = jwtConfig.Authority;
-                    jwo.Audience = jwtConfig.Audience;
-                    jwo.TokenValidationParameters = tvp;
-                });
 
             services.AddApplicationInsightsTelemetry();
             services.AddMvc();

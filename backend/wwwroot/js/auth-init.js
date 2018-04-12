@@ -16,6 +16,7 @@ var userAgentApplication = new Msal.UserAgentApplication(applicationConfig.clien
 //userAgentApplication has other optional parameters like redirectUri which can be assigned as shown above.Please refer to the docs to see the full list and their default values.
 function authCallback(errorDesc, token, error, tokenType) {
   if (token) {
+    // do nothing?
   }
   else {
     log(error + ":" + errorDesc);
@@ -43,14 +44,14 @@ function msLogin() {
       }, function (error) {
         console.log(error);
       });
-    })
+    });
   }, function (error) {
     console.log(error);
     });
 }
 
 //fixme
-if (currentToken != '') {
+if (currentToken !== '') {
   userAgentApplication.loginPopup(["openid"]).then(function (idToken) {
     //Login Success
     log('id2: ' + idToken);

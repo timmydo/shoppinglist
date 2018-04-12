@@ -1,4 +1,4 @@
-﻿using backend.Interfaces.Auth;
+using backend.Interfaces.Auth;
 using backend.Interfaces.Database;
 using backend.Models.Config;
 using backend.Models.Responses;
@@ -15,10 +15,10 @@ namespace backend.Services.Auth
 {
     public class TokenBuilder : ITokenBuilder
     {
-        private readonly JwtSettings options;
+        private readonly InternalTokenSettings options;
         private readonly SymmetricSecurityKey key;
 
-        public TokenBuilder(IOptions<JwtSettings> options, ISecretStore secretStore)
+        public TokenBuilder(IOptions<InternalTokenSettings> options, ISecretStore secretStore)
         {
             this.options = options.Value;
             var keys = this.options.SymmetricSigningKeys.Split(',');
@@ -56,6 +56,7 @@ namespace backend.Services.Auth
             return new TokenResponse()
             {
                 Token = encodedJwt,
+                Expires = now.Add(expiration),
                 ExpiresIn = (int)expiration.TotalSeconds
             };
         }

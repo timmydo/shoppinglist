@@ -5,6 +5,7 @@ using backend.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace backend.Controllers
@@ -21,7 +22,6 @@ namespace backend.Controllers
             this.userService = userService;
         }
 
-        [Authorize]
         [HttpGet("me")]
         public async Task<GetMyAccountResponse> GetMyAccount()
         {
@@ -43,7 +43,6 @@ namespace backend.Controllers
             return res;
         }
 
-        [Authorize]
         [HttpPost("list")]
         public async Task<ListResponse> ListRequest([FromBody] ListRequest request)
         {
@@ -59,7 +58,24 @@ namespace backend.Controllers
                 return null;
             }
 
-            return await userApi.TokenRequest(t);
+            var token = await userApi.TokenRequest(t);
+            SetTokenCookie(token);
+            return null;
+        }
+
+        private void SetTokenCookie(TokenResponse token)
+        {
+            var cookieName = "t";
+            var options = new CookieOptions()
+            {
+                Path = "/",
+                HttpOnly = true,
+                Secure = true,
+                Expires = token.Expires
+            };
+
+            Response.Cookies.Delete(cookieName);
+            Response.Cookies.Append(cookieName, token.Token, options);
         }
     }
 }

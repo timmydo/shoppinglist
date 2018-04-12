@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +13,8 @@ namespace backend.Models.Responses
 
         [JsonProperty(PropertyName = "expires_in")]
         public int ExpiresIn { get; set; }
+
+        [JsonProperty(PropertyName = "expires")]
+        public DateTimeOffset Expires { get; set; }
     }
 }
