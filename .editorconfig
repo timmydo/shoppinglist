@@ -1,0 +1,22 @@
+# top-most EditorConfig file
+root = true
+
+# Matches multiple files with brace expansion notation
+# Set default charset
+[*.{js,cs,csproj,html}]
+charset = utf-8
+
+# 4 space indentation
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# Indentation override for all JS under lib directory
+[backend/wwwroot/**.js]
+indent_style = space
+indent_size = 2
+
+# Matches the exact files either package.json or .travis.yml
+[{package.json,.travis.yml}]
+indent_style = space
+indent_size = 2
