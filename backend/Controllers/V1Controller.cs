@@ -48,34 +48,5 @@ namespace backend.Controllers
         {
             return await userApi.ListRequest(request);
         }
-
-        [HttpGet("token")]
-        public async Task<TokenResponse> TokenRequest(string t)
-        {
-            if (string.IsNullOrEmpty(t))
-            {
-                HttpContext.Response.StatusCode = 400;
-                return null;
-            }
-
-            var token = await userApi.TokenRequest(t);
-            SetTokenCookie(token);
-            return null;
-        }
-
-        private void SetTokenCookie(TokenResponse token)
-        {
-            var cookieName = "t";
-            var options = new CookieOptions()
-            {
-                Path = "/",
-                HttpOnly = true,
-                Secure = true,
-                Expires = token.Expires
-            };
-
-            Response.Cookies.Delete(cookieName);
-            Response.Cookies.Append(cookieName, token.Token, options);
-        }
     }
 }

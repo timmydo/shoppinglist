@@ -1,12 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace backend.Models.Config
 {
-    public class ExternalTokenSettings
+    public class TokenSettings
     {
+        public string Audience { get; set; }
+
+        public string Authority { get; set; }
+
         public string ValidIssuers { get; set; }
 
         public string ValidAudiences { get; set; }
@@ -18,8 +22,5 @@ namespace backend.Models.Config
         public bool ValidateAudience { get; set; }
 
         public bool ValidateLifetime { get; set; }
-
-        public string SymmetricSigningKeys { get; set; }
-
     }
 }

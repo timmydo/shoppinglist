@@ -42,8 +42,7 @@ namespace backend
 
             services.Configure<DatabaseSettings>(Configuration.GetSection(Constants.ConfigurationSections.Database));
             services.Configure<SecretSettings>(Configuration.GetSection(Constants.ConfigurationSections.Secrets));
-            services.Configure<InternalTokenSettings>(Configuration.GetSection(Constants.ConfigurationSections.Internal));
-            services.Configure<ExternalTokenSettings>(Configuration.GetSection(Constants.ConfigurationSections.External));
+            services.Configure<TokenSettings>(Configuration.GetSection(Constants.ConfigurationSections.Auth));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             ConfigureAuth(services);
@@ -54,8 +53,8 @@ namespace backend
 
         private void ConfigureAuth(IServiceCollection services)
         {
-            var tokenConfig = new InternalTokenSettings();
-            Configuration.GetSection(Constants.ConfigurationSections.Internal).Bind(tokenConfig);
+            var tokenConfig = new TokenSettings();
+            Configuration.GetSection(Constants.ConfigurationSections.Auth).Bind(tokenConfig);
             var sp = services.BuildServiceProvider();
             var sm = sp.GetRequiredService<Interfaces.Database.ISecretStore>();
 
@@ -67,7 +66,6 @@ namespace backend
                 ValidateIssuerSigningKey = tokenConfig.ValidateIssuerSigningKey,
                 ValidAudiences = tokenConfig.ValidAudiences.Split(',').Select(iss => iss.Trim()).ToArray(),
                 ValidIssuers = tokenConfig.ValidIssuers.Split(',').Select(iss => iss.Trim()).ToArray(),
-                IssuerSigningKeys = tokenConfig.SymmetricSigningKeys.Split(',').Where(ssk => !string.IsNullOrWhiteSpace(ssk)).Select(ssk => new SymmetricSecurityKey(Convert.FromBase64String(sm.Get(ssk.Trim())))).ToArray(),
             };
 
             services.AddAuthentication(ao =>

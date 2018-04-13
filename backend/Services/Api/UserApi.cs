@@ -15,14 +15,10 @@ namespace backend.Services.Api
     public class UserApi : IUserApi
     {
         private readonly IDatabase database;
-        private readonly ITokenBuilder tokenBuilder;
-        private readonly IExternalTokenValidator externalTokenValidator;
 
-        public UserApi(IDatabase database, ITokenBuilder tokenBuilder, IExternalTokenValidator externalTokenValidator)
+        public UserApi(IDatabase database)
         {
             this.database = database;
-            this.tokenBuilder = tokenBuilder;
-            this.externalTokenValidator = externalTokenValidator;
         }
 
         public async Task<GetMyAccountResponse> GetAccount(string id)
@@ -44,23 +40,6 @@ namespace backend.Services.Api
         public Task<ListResponse> ListRequest(ListRequest request)
         {
             throw new NotImplementedException();
-        }
-
-        public async Task<TokenResponse> TokenRequest(string externalToken)
-        {
-            await Task.Delay(1);
-            var validationResult = externalTokenValidator.Validate(externalToken);
-            if (validationResult.Valid)
-            {
-                var token = tokenBuilder.Build("fixme");
-                return token;
-            }
-
-            return new TokenResponse()
-            {
-                Token = null,
-                ExpiresIn = 0,
-            };
         }
     }
 }

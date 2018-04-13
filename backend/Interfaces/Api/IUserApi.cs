@@ -1,4 +1,4 @@
-﻿using backend.Models.Requests;
+using backend.Models.Requests;
 using backend.Models.Responses;
 using System.Threading.Tasks;
 
@@ -9,7 +9,5 @@ namespace backend.Interfaces.Api
         Task<GetMyAccountResponse> GetAccount(string id);
 
         Task<ListResponse> ListRequest(ListRequest request);
-
-        Task<TokenResponse> TokenRequest(string t);
     }
 }

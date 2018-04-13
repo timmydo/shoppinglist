@@ -9,9 +9,7 @@ namespace backend.Models
     {
         public static class ConfigurationSections
         {
-            public const string External = "external";
-
-            public const string Internal = "internal";
+            public const string Auth = "auth";
 
             public const string Secrets = "secrets";
 

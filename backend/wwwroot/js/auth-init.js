@@ -2,7 +2,7 @@
 
   var applicationConfig = {
     clientID: '0cd9ecf8-f3ec-475e-8882-8292b40e7516',
-    graphScopes: ["openid"]
+    graphScopes: ["user.read"]
   };
 
   var currentToken = '';
@@ -29,27 +29,39 @@
     console.log(item);
   }
 
-  function msLogin() {
-    return userAgentApplication.loginPopup(applicationConfig.graphScopes).then(function (idToken) {
-      //Login Success
-      log('id: ' + idToken);
-      currentToken = idToken;
-      userAgentApplication.acquireTokenSilent(applicationConfig.graphScopes).then(function (accessToken) {
-        log('at: ' + idToken);
-        currentToken = accessToken;
-
-      }, function (error) {
-        //AcquireToken Failure, send an interactive request.
-        userAgentApplication.acquireTokenPopup(applicationConfig.graphScopes).then(function (accessToken) {
-          log('at: ' + accessToken);
-          currentToken = accessToken;
-        }, function (error) {
-          console.log(error);
-        });
-      });
+  function acquireToken() {
+    userAgentApplication.acquireTokenSilent(applicationConfig.graphScopes).then(function (accessToken) {
+      setToken(accessToken);
     }, function (error) {
-      console.log(error);
+      //AcquireToken Failure, send an interactive request.
+      log(error);
+      userAgentApplication.acquireTokenPopup(applicationConfig.graphScopes).then(function (accessToken) {
+        setToken(accessToken);
+      }, function (error) {
+        log(error);
+      });
     });
+  }
+
+  function initAuth2() {
+    var user = userAgentApplication.getUser();
+    if (!user) {
+      userAgentApplication.loginPopup(applicationConfig.graphScopes).then(function () {
+        acquireToken();
+      });
+    } else {
+      acquireToken();
+    }
+  }
+
+  function initAuth() {
+    if (needsToken()) {
+      userAgentApplication.loginPopup(applicationConfig.graphScopes).then(function (tok) {
+        setToken(tok);
+      });
+    } else {
+      log('found: ' + getToken());
+    }
   }
 
   function getToken() {
@@ -66,19 +78,32 @@
   }
 
   function fetchToken() {
-    userAgentApplication.loginPopup(applicationConfig.graphScopes).then(function (msaToken) {
-      $.ajax({
-        type: "GET",
-        url: "/api/v1/token?t=" + msaToken
-      }).done(function (myToken) {
-        setToken(myToken);
+    userAgentApplication.acquireTokenSilent(applicationConfig.graphScopes).then(function (accessToken) {
+      setToken(accessToken);
+    }, function (error) {
+      //AcquireToken Failure, send an interactive request.
+      userAgentApplication.acquireTokenPopup(applicationConfig.graphScopes).then(function (accessToken) {
+        setToken(accessToken);
+      }, function (error) {
+        log(error);
       });
-    })
+    });
   }
 
-  if (needsToken()) {
-    fetchToken();
+  function getList() {
+    $.ajax({
+      type: "GET",
+      url: "/api/v1/me",
+      headers: {
+        'Authorization': 'Bearer ' + getToken()
+      }
+    }).done(function (data) {
+      log(data);
+    });
   }
+
+  initAuth();
+  getList();
 
 
 })();

@@ -1,4 +1,4 @@
-﻿using backend.Interfaces.Api;
+using backend.Interfaces.Api;
 using backend.Interfaces.Auth;
 using backend.Interfaces.Database;
 using backend.Interfaces.Infrastructure;
@@ -18,8 +18,6 @@ namespace backend.Services.Infrastructure
             container.AddSingleton<IDocumentSerializer, DocumentSerializer>();
             container.AddSingleton<ISecretStore, SecretStore>();
             container.AddSingleton<IDependencyTracker, DependencyTracker>();
-            container.AddSingleton<ITokenBuilder, TokenBuilder>();
-            container.AddSingleton<IExternalTokenValidator, ExternalTokenValidator>();
             container.AddSingleton<IUserApi, UserApi>();
             container.AddSingleton<IUserService, UserService>();
         }
