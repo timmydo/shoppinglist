@@ -102,8 +102,7 @@
     });
   }
 
-  initAuth();
-  getList();
-
+	module.getList = getList;
+	module.initAuth = initAuth;
 
 })();

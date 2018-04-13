@@ -4,3 +4,4 @@ out/
 .vs/
 .vscode/
 *.suo
+node_modules/

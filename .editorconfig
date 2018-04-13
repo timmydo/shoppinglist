@@ -12,7 +12,7 @@ indent_style = space
 indent_size = 4
 
 # Indentation override for all JS under lib directory
-[backend/wwwroot/**.js]
+[backend/js/**.js]
 indent_style = space
 indent_size = 2
 

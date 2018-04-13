@@ -3,10 +3,13 @@
 <head>
 	<meta charset="utf-8" />
 	<title>Shopping List</title>
-	<script src="js/jquery.min.js"></script>
-	<script src="https://secure.aadcdn.microsoftonline-p.com/lib/0.1.5/js/msal.min.js"></script>
-	<script src="js/q.js"></script>
-	<script src="js/auth-init.js"></script>
+	<script src="js/bundle.js"></script>
+	<script src="js/my.js"></script>
+	<script>
+		var auth = require('auth');
+		auth.initAuth();
+		auth.getList();
+	</script>
 </head>
 <body>
 	Hello, World!
