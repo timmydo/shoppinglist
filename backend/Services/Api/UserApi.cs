@@ -4,10 +4,7 @@ using backend.Interfaces.Database;
 using backend.Models.Documents;
 using backend.Models.Requests;
 using backend.Models.Responses;
-using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace backend.Services.Api

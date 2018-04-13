@@ -20,6 +20,7 @@ namespace backend.Services.Infrastructure
             container.AddSingleton<IDependencyTracker, DependencyTracker>();
             container.AddSingleton<IUserApi, UserApi>();
             container.AddSingleton<IUserService, UserService>();
+            container.AddSingleton<IMetricTrackerFactory, UserService>();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using backend.Interfaces.Database;
+using backend.Interfaces.Database;
+using backend.Interfaces.Infrastructure;
 using backend.Models.Config;
 using backend.Models.Documents;
 using backend.Models.Exceptions;
@@ -18,11 +19,14 @@ namespace backend.Services.Database
         private readonly IDocumentSerializer documentSerializer;
         private readonly DatabaseSettings options;
         private readonly DocumentClient client;
+        private readonly IMetricTracker ruCounter;
 
-        public DocumentDatabase(IDocumentSerializer documentSerializer, ISecretStore secretStore, IOptions<DatabaseSettings> options)
+        public DocumentDatabase(IDocumentSerializer documentSerializer, ISecretStore secretStore, IOptions<DatabaseSettings> options, IMetricTrackerFactory metricTrackerFactory)
         {
             this.documentSerializer = documentSerializer;
             this.options = options.Value;
+            var uri = new Uri(this.options.ServiceEndpoint);
+            this.ruCounter = metricTrackerFactory.Create($"RU_{uri.Host}");
             var authKey = secretStore.Get(this.options.AuthKey);
             var cp = new ConnectionPolicy()
             {
@@ -36,7 +40,7 @@ namespace backend.Services.Database
                 },
             };
 
-            this.client = new DocumentClient(new Uri(this.options.ServiceEndpoint), authKey, cp);
+            this.client = new DocumentClient(uri, authKey, cp);
         }
 
         public async Task Create<T>(T obj) where T : IDocumentObject
@@ -46,6 +50,7 @@ namespace backend.Services.Database
             try
             {
                 var res = await client.CreateDocumentAsync(uri, item);
+                ruCounter.Track(res.RequestCharge);
                 obj.Etag = res.Resource.ETag;
             }
             catch (DocumentClientException e)
@@ -68,8 +73,10 @@ namespace backend.Services.Database
 
                 var uri = UriFactory.CreateDocumentUri(options.Database, options.Collection, id);
 
-                var document = await client.ReadDocumentAsync(uri, ro);
-                var obj = (DatabaseObject)(dynamic)document;
+                var document = await client.ReadDocumentAsync<DatabaseObject>(uri, ro);
+                ruCounter.Track(document.RequestCharge);
+
+                var obj = document.Document;
                 return documentSerializer.Deserialize<T>(obj);
             }
             catch (DocumentClientException e)
@@ -102,6 +109,7 @@ namespace backend.Services.Database
             {
                 var serialized = documentSerializer.Serialize(obj);
                 var res = await client.ReplaceDocumentAsync(uri, serialized, ro);
+                ruCounter.Track(res.RequestCharge);
                 obj.Etag = res.Resource.ETag;
             }
             catch (DocumentClientException de)
