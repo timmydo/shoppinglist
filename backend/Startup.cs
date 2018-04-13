@@ -42,7 +42,6 @@ namespace backend
 
             services.Configure<DatabaseSettings>(Configuration.GetSection(Constants.ConfigurationSections.Database));
             services.Configure<SecretSettings>(Configuration.GetSection(Constants.ConfigurationSections.Secrets));
-            services.Configure<TokenSettings>(Configuration.GetSection(Constants.ConfigurationSections.Auth));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             ConfigureAuth(services);
@@ -53,19 +52,14 @@ namespace backend
 
         private void ConfigureAuth(IServiceCollection services)
         {
-            var tokenConfig = new TokenSettings();
-            Configuration.GetSection(Constants.ConfigurationSections.Auth).Bind(tokenConfig);
-            var sp = services.BuildServiceProvider();
-            var sm = sp.GetRequiredService<Interfaces.Database.ISecretStore>();
-
             var tvp = new TokenValidationParameters()
             {
-                ValidateAudience = tokenConfig.ValidateAudience,
-                ValidateIssuer = tokenConfig.ValidateIssuer,
-                ValidateLifetime = tokenConfig.ValidateLifetime,
-                ValidateIssuerSigningKey = tokenConfig.ValidateIssuerSigningKey,
-                ValidAudiences = tokenConfig.ValidAudiences.Split(',').Select(iss => iss.Trim()).ToArray(),
-                ValidIssuers = tokenConfig.ValidIssuers.Split(',').Select(iss => iss.Trim()).ToArray(),
+                ValidateAudience = true,
+                ValidateIssuer = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidAudiences = new string[] { "0cd9ecf8-f3ec-475e-8882-8292b40e7516" },
+                ValidIssuers = new string[] { "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0" },
             };
 
             services.AddAuthentication(ao =>
@@ -73,8 +67,8 @@ namespace backend
                 ao.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(jwo =>
             {
-                jwo.Authority = tokenConfig.Authority;
-                jwo.Audience = tokenConfig.Audience;
+                jwo.Authority = "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0";
+                jwo.Audience = "0cd9ecf8-f3ec-475e-8882-8292b40e7516";
                 jwo.TokenValidationParameters = tvp;
             });
         }
