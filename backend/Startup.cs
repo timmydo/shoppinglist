@@ -52,6 +52,10 @@ namespace backend
 
         private void ConfigureAuth(IServiceCollection services)
         {
+            //var iv = new IssuerValidator()
+            //{
+            //};
+
             var tvp = new TokenValidationParameters()
             {
                 ValidateAudience = true,
@@ -60,6 +64,7 @@ namespace backend
                 ValidateIssuerSigningKey = true,
                 ValidAudiences = new string[] { "0cd9ecf8-f3ec-475e-8882-8292b40e7516" },
                 ValidIssuers = new string[] { "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0" },
+                //IssuerValidator = 
             };
 
             services.AddAuthentication(ao =>
@@ -67,7 +72,7 @@ namespace backend
                 ao.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(jwo =>
             {
-                jwo.Authority = "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0";
+                jwo.Authority = "https://login.microsoftonline.com/common/v2.0";
                 jwo.Audience = "0cd9ecf8-f3ec-475e-8882-8292b40e7516";
                 jwo.TokenValidationParameters = tvp;
             });

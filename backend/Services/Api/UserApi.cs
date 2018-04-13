@@ -21,9 +21,9 @@ namespace backend.Services.Api
             this.database = database;
         }
 
-        public async Task<GetMyAccountResponse> GetAccount(string id)
+        public async Task<GetMyAccountResponse> GetAccount(IUser userId)
         {
-            var user = await database.Read<UserObject>("id1");
+            var user = await database.Read<UserObject>(userId.Id);
             if (user == null)
             {
                 return null;
@@ -37,9 +37,35 @@ namespace backend.Services.Api
             return response;
         }
 
-        public Task<ListResponse> ListRequest(ListRequest request)
+        public async Task<GetMyAccountResponse> CreateAccount(IUser userId)
         {
-            throw new NotImplementedException();
+            var user = new UserObject()
+            {
+                Id = userId.Id,
+                Lists = new List<ListDescriptorObject>(),
+            };
+
+            await database.Create(user);
+            var response = new GetMyAccountResponse()
+            {
+                Lists = user.Lists
+            };
+
+            return response;
+        }
+
+        public async Task<ListResponse> ListRequest(IUser userId, ListRequest request)
+        {
+            var user = await database.Read<UserObject>(userId.Id);
+            if (user == null)
+            {
+                return new ListResponse()
+                {
+                    Lists = null,
+                };
+            }
+
+            return null;
         }
     }
 }

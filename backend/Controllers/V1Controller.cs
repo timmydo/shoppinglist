@@ -33,11 +33,11 @@ namespace backend.Controllers
                 return null;
             }
 
-            var res = await userApi.GetAccount(user.Id);
+            var res = await userApi.GetAccount(user);
             if (res == null)
             {
-                HttpContext.Response.StatusCode = 404;
-                return null;
+                var createResult = await userApi.CreateAccount(user);
+                return createResult;
             }
 
             return res;
@@ -46,7 +46,15 @@ namespace backend.Controllers
         [HttpPost("list")]
         public async Task<ListResponse> ListRequest([FromBody] ListRequest request)
         {
-            return await userApi.ListRequest(request);
+            var user = userService.GetCurrentUser();
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
+
+            return await userApi.ListRequest(user, request);
         }
     }
 }
