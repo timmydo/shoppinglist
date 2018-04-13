@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Middleware;
+using backend.Models;
 using backend.Models.Config;
 using backend.Services.Infrastructure;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -39,14 +40,45 @@ namespace backend
             var c = new ServiceContainer(services);
             ServiceRegistration.Register(c);
 
-            services.Configure<DatabaseSettings>(Configuration.GetSection("database"));
-            services.Configure<SecretSettings>(Configuration.GetSection("secrets"));
-            services.Configure<InternalTokenSettings>(Configuration.GetSection("internal"));
-            services.Configure<ExternalTokenSettings>(Configuration.GetSection("external"));
+            services.Configure<DatabaseSettings>(Configuration.GetSection(Constants.ConfigurationSections.Database));
+            services.Configure<SecretSettings>(Configuration.GetSection(Constants.ConfigurationSections.Secrets));
+            services.Configure<InternalTokenSettings>(Configuration.GetSection(Constants.ConfigurationSections.Internal));
+            services.Configure<ExternalTokenSettings>(Configuration.GetSection(Constants.ConfigurationSections.External));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            ConfigureAuth(services);
 
             services.AddApplicationInsightsTelemetry();
             services.AddMvc();
+        }
+
+        private void ConfigureAuth(IServiceCollection services)
+        {
+            var tokenConfig = new InternalTokenSettings();
+            Configuration.GetSection(Constants.ConfigurationSections.Internal).Bind(tokenConfig);
+            var sp = services.BuildServiceProvider();
+            var sm = sp.GetRequiredService<Interfaces.Database.ISecretStore>();
+
+            var tvp = new TokenValidationParameters()
+            {
+                ValidateAudience = tokenConfig.ValidateAudience,
+                ValidateIssuer = tokenConfig.ValidateIssuer,
+                ValidateLifetime = tokenConfig.ValidateLifetime,
+                ValidateIssuerSigningKey = tokenConfig.ValidateIssuerSigningKey,
+                ValidAudiences = tokenConfig.ValidAudiences.Split(',').Select(iss => iss.Trim()).ToArray(),
+                ValidIssuers = tokenConfig.ValidIssuers.Split(',').Select(iss => iss.Trim()).ToArray(),
+                IssuerSigningKeys = tokenConfig.SymmetricSigningKeys.Split(',').Where(ssk => !string.IsNullOrWhiteSpace(ssk)).Select(ssk => new SymmetricSecurityKey(Convert.FromBase64String(sm.Get(ssk.Trim())))).ToArray(),
+            };
+
+            services.AddAuthentication(ao =>
+            {
+                ao.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(jwo =>
+            {
+                jwo.Authority = tokenConfig.Authority;
+                jwo.Audience = tokenConfig.Audience;
+                jwo.TokenValidationParameters = tvp;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

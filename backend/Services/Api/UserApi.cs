@@ -1,4 +1,4 @@
-﻿using backend.Interfaces.Api;
+using backend.Interfaces.Api;
 using backend.Interfaces.Auth;
 using backend.Interfaces.Database;
 using backend.Models.Documents;
@@ -50,8 +50,7 @@ namespace backend.Services.Api
         {
             await Task.Delay(1);
             var validationResult = externalTokenValidator.Validate(externalToken);
-            // todo fixme
-            //if (validationResult.Valid)
+            if (validationResult.Valid)
             {
                 var token = tokenBuilder.Build("fixme");
                 return token;
