@@ -1,1 +1,1 @@
-browserify js/auth.js > wwwroot/js/my.js
+browserify js/auth.js js/start.js > wwwroot/js/my.js
