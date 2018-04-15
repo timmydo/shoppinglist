@@ -1,6 +1,7 @@
 (function () {
   var Msal = require('msal');
-  var $ = require('jquery');
+  var util = require('./util');
+
   var applicationConfig = {
     clientID: '0cd9ecf8-f3ec-475e-8882-8292b40e7516',
     graphScopes: ["user.read"]
@@ -10,7 +11,7 @@
   //Logger has other optional parameters like piiLoggingEnabled which can be assigned as shown aabove. Please refer to the docs to see the full list and their default values.
 
   function loggerCallback(logLevel, message, piiLoggingEnabled) {
-    console.log(message);
+    util.log(message);
   }
 
   var userAgentApplication = new Msal.UserAgentApplication(
@@ -24,37 +25,23 @@
       // do nothing?
     }
     else {
-      log(error + ":" + errorDesc);
+      util.log(error + ":" + errorDesc);
     }
   }
 
-  function log(item) {
-    console.log(item);
-  }
 
   function acquireToken() {
     userAgentApplication.acquireTokenSilent(applicationConfig.graphScopes).then(function (accessToken) {
       //setToken(accessToken);
     }, function (error) {
       //AcquireToken Failure, send an interactive request.
-      log(error);
+      util.log(error);
       userAgentApplication.acquireTokenPopup(applicationConfig.graphScopes).then(function (accessToken) {
         //setToken(accessToken);
       }, function (error) {
-        log(error);
+        util.log(error);
       });
     });
-  }
-
-  function initAuth2() {
-    var user = userAgentApplication.getUser();
-    if (!user) {
-      userAgentApplication.loginPopup(applicationConfig.graphScopes).then(function () {
-        acquireToken();
-      });
-    } else {
-      acquireToken();
-    }
   }
 
   function initAuth() {
@@ -63,7 +50,7 @@
         setToken(tok);
       });
     } else {
-      log('found: ' + getToken());
+      util.log('found: ' + getToken());
     }
   }
 
@@ -72,7 +59,7 @@
   }
 
   function setToken(tok) {
-    log('set token: ' + tok);
+    util.log('set token: ' + tok);
     return localStorage.setItem("sltok", tok);
   }
 
@@ -84,29 +71,7 @@
     return !getToken();
   }
 
-  function getList(retry) {
-    $.ajax({
-      type: "GET",
-      url: "/api/v1/me",
-      headers: {
-        'Authorization': 'Bearer ' + getToken()
-      },
-      statusCode: {
-        401: function (xhr) {
-          log('retry on 400');
-          clearToken();
-          initAuth();
-          if (retry) {
-            getList(false);
-          }
-        }
-      }
-    }).done(function (data) {
-      log(data);
-    });
-  }
-
-	module.exports.getList = getList;
-	module.exports.initAuth = initAuth;
+  module.exports.initAuth = initAuth;
+  module.exports.getToken = getToken;
 
 })();

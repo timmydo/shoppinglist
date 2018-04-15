@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "browserify": "browserify js/start.js -o wwwroot/js/my.js",
+    "watchify": "watchify js/start.js -o wwwroot/js/my.js"
   },
   "author": "Timmy Douglas",
   "license": "MIT"

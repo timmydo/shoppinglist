@@ -1,6 +1,8 @@
 
 (function () {
   var auth = require('./auth');
+  var list = require('./list');
+
   auth.initAuth();
-  auth.getList();
+  list.getList();
 })();
