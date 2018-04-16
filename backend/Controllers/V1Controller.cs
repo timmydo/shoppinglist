@@ -23,7 +23,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("me")]
-        public async Task<GetMyAccountResponse> GetMyAccount()
+        public async Task<UserResponse> GetMyAccount()
         {
             var user = userService.GetCurrentUser();
 
@@ -41,6 +41,26 @@ namespace backend.Controllers
             }
 
             return res;
+        }
+
+        [HttpPost("user")]
+        public async Task<UserResponse> ListRequest([FromBody] UserRequest request)
+        {
+            var user = userService.GetCurrentUser();
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
+
+            if (request == null)
+            {
+                HttpContext.Response.StatusCode = 400;
+                return null;
+            }
+
+            return await userApi.UserRequest(user, request);
         }
 
         [HttpPost("list")]

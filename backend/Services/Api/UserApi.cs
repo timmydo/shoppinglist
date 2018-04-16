@@ -2,6 +2,7 @@ using backend.Interfaces.Api;
 using backend.Interfaces.Auth;
 using backend.Interfaces.Database;
 using backend.Models.Documents;
+using backend.Models.Exceptions;
 using backend.Models.Requests;
 using backend.Models.Responses;
 using System;
@@ -20,7 +21,7 @@ namespace backend.Services.Api
             this.database = database;
         }
 
-        public async Task<GetMyAccountResponse> GetAccount(IUser userId)
+        public async Task<UserResponse> GetAccount(IUser userId)
         {
             var user = await database.Read<UserObject>(userId.Id);
             if (user == null)
@@ -28,7 +29,7 @@ namespace backend.Services.Api
                 return null;
             }
 
-            var response = new GetMyAccountResponse()
+            var response = new UserResponse()
             {
                 Lists = user.Lists
             };
@@ -36,7 +37,7 @@ namespace backend.Services.Api
             return response;
         }
 
-        public async Task<GetMyAccountResponse> CreateAccount(IUser userId)
+        public async Task<UserResponse> CreateAccount(IUser userId)
         {
             var user = new UserObject()
             {
@@ -45,10 +46,50 @@ namespace backend.Services.Api
             };
 
             await database.Create(user);
-            var response = new GetMyAccountResponse()
+            var response = new UserResponse()
             {
                 Lists = user.Lists
             };
+
+            return response;
+        }
+
+        public async Task<UserResponse> UserRequest(IUser userId, UserRequest request)
+        {
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var user = await database.Read<UserObject>(userId.Id);
+            var response = new UserResponse()
+            {
+                Lists = user.Lists,
+            };
+
+            if (user == null)
+            {
+                return response;
+            }
+
+            var toAdd = new HashSet<string>(request.ListsToAdd?.Select(li => li.Id) ?? new string[0]);
+            var toRemove = new HashSet<string>(request.ListsToRemove?.Select(li => li.Id) ?? new string[0]);
+            user.Lists = user.Lists.Where(li => !toAdd.Contains(li.Id) && !toRemove.Contains(li.Id)).ToList();
+
+            if (request.ListsToAdd != null)
+            {
+                foreach (var item in request.ListsToAdd)
+                {
+                    user.Lists.Add(item);
+                }
+            }
+
+            await database.Write(user);
 
             return response;
         }
@@ -66,7 +107,6 @@ namespace backend.Services.Api
             }
 
             var user = await database.Read<UserObject>(userId.Id);
-            bool writeUser = false;
             var response = new ListResponse()
             {
                 Lists = new List<ListResponse.ListData>(),
@@ -78,18 +118,8 @@ namespace backend.Services.Api
                 return response;
             }
 
-            if (request.ListsToAdd != null)
-            {
-                foreach (var toAdd in request.ListsToAdd)
-                {
-                    user.Lists = user.Lists.Where(li => li.Id != toAdd.Id).ToList();
-                    user.Lists.Add(toAdd);
-                    writeUser = true;
-                }
-            }
-
             var listCache = new Dictionary<string, ListObject>();
-            var needsSaving = new HashSet<ListObject>();
+            var needsSaving = new Dictionary<ListObject, List<string>>();
             if (request.Marks != null)
             {
                 foreach (var mark in request.Marks)
@@ -97,9 +127,43 @@ namespace backend.Services.Api
                     var listObject = await ReadList(mark.ListId, listCache);
                     if (listObject != null)
                     {
-                        //to do fixme
-                        //if (mark.Item
-                        needsSaving.Add(listObject);
+                        if (listObject.Items == null)
+                        {
+                            listObject.Items = new List<ListItemObject>();
+                        }
+
+                        if (string.IsNullOrWhiteSpace(mark.Item?.Name))
+                        {
+                            response.Marks.Add(new ListResponse.MarkResponse()
+                            {
+                                Id = mark.RequestId,
+                                ReasonCode = MarkResponseReasonCode.MarkItemMissing,
+                                Success = false,
+                            });
+                        }
+                        else if (mark.Item.State != ListItemStates.Active && mark.Item.State != ListItemStates.Complete)
+                        {
+                            response.Marks.Add(new ListResponse.MarkResponse()
+                            {
+                                Id = mark.RequestId,
+                                ReasonCode = MarkResponseReasonCode.InvalidState,
+                                Success = false,
+                            });
+                        }
+                        else
+                        {
+
+                            listObject.Items = listObject.Items.Where(li => !string.Equals(li.Name, mark.Item.Name)).ToList();
+                            listObject.Items.Add(mark.Item);
+                            if (needsSaving.ContainsKey(listObject))
+                            {
+                                needsSaving[listObject].Add(mark.RequestId);
+                            }
+                            else
+                            {
+                                needsSaving[listObject] = new List<string>() { mark.RequestId };
+                            }
+                        }
                     }
                     else
                     {
@@ -117,25 +181,44 @@ namespace backend.Services.Api
             {
                 foreach (var listToGet in request.ListsToGet)
                 {
-                    var listObject = await database.Read<ListObject>(listToGet);
-                    if (listObject != null)
+                    var listObject = await ReadList(listToGet, listCache);
+                    response.Lists.Add(new ListResponse.ListData()
                     {
-                        listCache.Add(listToGet, listObject);
-                    }
+                        Id = listToGet,
+                        Items = listObject.Items,
+                    });
                 }
-            }
-
-
-            if (writeUser)
-            {
-                await database.Write(user);
             }
 
             if (needsSaving.Any())
             {
                 foreach (var toSave in needsSaving)
                 {
-                    await database.Write(toSave);
+                    try
+                    {
+                        await database.Write(toSave.Key);
+                        foreach (var req in toSave.Value)
+                        {
+                            response.Marks.Add(new ListResponse.MarkResponse()
+                            {
+                                Id = req,
+                                ReasonCode = MarkResponseReasonCode.None,
+                                Success = true,
+                            });
+                        }
+                    }
+                    catch (EtagMismatchException)
+                    {
+                        foreach (var req in toSave.Value)
+                        {
+                            response.Marks.Add(new ListResponse.MarkResponse()
+                            {
+                                Id = req,
+                                ReasonCode = MarkResponseReasonCode.WriteFailed,
+                                Success = false,
+                            });
+                        }
+                    }
                 }
             }
 

@@ -1,4 +1,4 @@
-﻿using backend.Models.Documents;
+using backend.Models.Documents;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace backend.Models.Responses
 {
-    public class GetMyAccountResponse
+    public class UserResponse
     {
         [JsonProperty(PropertyName = "l")]
         public IList<ListDescriptorObject> Lists { get; set; }

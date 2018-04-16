@@ -7,10 +7,12 @@ namespace backend.Interfaces.Api
 {
     public interface IUserApi
     {
-        Task<GetMyAccountResponse> GetAccount(IUser user);
+        Task<UserResponse> GetAccount(IUser user);
 
-        Task<GetMyAccountResponse> CreateAccount(IUser user);
+        Task<UserResponse> CreateAccount(IUser user);
 
         Task<ListResponse> ListRequest(IUser user, ListRequest request);
+
+        Task<UserResponse> UserRequest(IUser userId, UserRequest request);
     }
 }
