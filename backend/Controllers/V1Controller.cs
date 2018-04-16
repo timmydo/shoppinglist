@@ -54,6 +54,12 @@ namespace backend.Controllers
                 return null;
             }
 
+            if (request == null)
+            {
+                HttpContext.Response.StatusCode = 400;
+                return null;
+            }
+
             return await userApi.ListRequest(user, request);
         }
     }
