@@ -67,10 +67,7 @@ namespace backend.Services.Api
             }
 
             var user = await database.Read<UserObject>(userId.Id);
-            var response = new UserResponse()
-            {
-                Lists = user.Lists,
-            };
+            var response = new UserResponse();
 
             if (user == null)
             {
@@ -85,12 +82,15 @@ namespace backend.Services.Api
             {
                 foreach (var item in request.ListsToAdd)
                 {
-                    user.Lists.Add(item);
+                    if (!string.IsNullOrWhiteSpace(item.Id) && !string.IsNullOrWhiteSpace(item.Name))
+                    {
+                        user.Lists.Add(item);
+                    }
                 }
             }
 
             await database.Write(user);
-
+            response.Lists = user.Lists;
             return response;
         }
 
