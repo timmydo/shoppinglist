@@ -5,13 +5,26 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="js\auth.js" />
+    <Compile Remove="js\**" />
+    <Content Remove="js\**" />
+    <EmbeddedResource Remove="js\**" />
+    <None Remove="js\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="webapp\src\app\backend.service.ts" />
+    <None Remove="webapp\src\app\models.ts" />
   </ItemGroup>
 
   <ItemGroup>
 	  <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.2.1" />
 	  <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
 	  <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.9.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="webapp\src\app\backend.service.ts" />
+    <TypeScriptCompile Include="webapp\src\app\models.ts" />
   </ItemGroup>
 
   <ItemGroup>
