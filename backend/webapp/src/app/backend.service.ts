@@ -7,7 +7,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { MessageService } from './message.service';
 
-import { User, List } from './models';
+import { UserResponse, ListResponse, UserRequest } from './models';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -23,8 +23,8 @@ export class BackendService {
     private messageService: MessageService) { }
 
   /** GET heroes from the server */
-  getUser(): Observable<User> {
-    return this.http.get<User>(this.meUrl)
+  getUser(): Observable<UserResponse[]> {
+    return this.http.get<UserResponse[]>(this.meUrl)
       .pipe(
       tap(heroes => this.log(`fetched heroes`)),
       catchError(this.handleError('getHeroes', []))
@@ -54,6 +54,6 @@ export class BackendService {
 
   /** Log a HeroService message with the MessageService */
   private log(message: string) {
-    this.messageService.add('HeroService: ' + message);
+    this.messageService.add('BackendService: ' + message);
   }
 }
