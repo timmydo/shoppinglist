@@ -38,20 +38,6 @@ export class AuthService {
   }
 
   acquireToken() {
-    this.userAgentApplication.acquireTokenSilent(this.applicationConfig.graphScopes).then(function (accessToken) {
-      //setToken(accessToken);
-    }, function (error) {
-      //AcquireToken Failure, send an interactive request.
-      console.log(error);
-      this.userAgentApplication.acquireTokenPopup(this.applicationConfig.graphScopes).then(function (accessToken) {
-        //setToken(accessToken);
-      }, function (error) {
-        console.log(error);
-      });
-    });
-  }
-
-  initAuth() {
     if (this.needsToken()) {
       this.userAgentApplication.loginPopup(this.applicationConfig.graphScopes).then(function (tok) {
         this.setToken(tok);
@@ -70,7 +56,7 @@ export class AuthService {
     return localStorage.setItem("sltok", tok);
   }
 
-  clearToken(tok) {
+  clearToken() {
     return this.setToken('');
   }
 

@@ -4,3 +4,11 @@
     Welcome to {{ title }}!
   </h1>
 </div>
+
+<div *ngFor="let user of users$ | async">
+  <ul>
+    <li *ngFor="let listItem of user.l">
+      List Item: {{listItem.n}} id: {{listItem.id}}
+      </li>
+  </ul>
+</div>
