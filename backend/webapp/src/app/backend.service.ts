@@ -8,6 +8,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { MessageService } from './message.service';
 
 import { UserResponse, ListResponse, UserRequest } from './models';
+import { AuthService } from './auth.service';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -20,14 +21,15 @@ export class BackendService {
 
   constructor(
     private http: HttpClient,
+    private auth: AuthService,
     private messageService: MessageService) { }
 
   /** GET heroes from the server */
-  getUser(): Observable<UserResponse[]> {
-    return this.http.get<UserResponse[]>(this.meUrl)
+  getUser(): Observable<UserResponse> {
+    return this.http.get<UserResponse>(this.meUrl)
       .pipe(
-      tap(heroes => this.log(`fetched heroes`)),
-      catchError(this.handleError('getHeroes', []))
+      tap(user => this.log(`fetched user`)),
+      catchError(this.handleError<UserResponse>('getUser'))
       );
   }
 

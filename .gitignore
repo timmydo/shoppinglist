@@ -5,3 +5,4 @@ out/
 .vscode/
 *.suo
 node_modules/
+/backend/wwwroot
