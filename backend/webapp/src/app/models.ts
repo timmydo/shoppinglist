@@ -53,3 +53,12 @@ export class ListDescriptorObject {
 export class UserResponse {
   public l: ListDescriptorObject[];
 }
+
+export class ListAndItems {
+  public list: ListDescriptorObject;
+  public items: ListItemObject[];
+}
+
+export class ApplicationState {
+  public lists: ListAndItems[];
+}

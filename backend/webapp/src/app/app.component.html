@@ -5,10 +5,13 @@
   </h1>
 </div>
 
-<div *ngFor="let user of users$ | async">
-  <ul>
-    <li *ngFor="let listItem of user.l">
-      List Item: {{listItem.n}} id: {{listItem.id}}
+<div *ngIf="(state$ | async).lists">
+  <div *ngFor="let list of (state$ | async).lists">
+    <h2>{{list.n}}/{{list.id}}</h2>
+    <ul>
+      <li *ngFor="let listItem of list.items">
+        List Item: {{listItem.n}} s: {{listItem.s}}
       </li>
-  </ul>
+    </ul>
+  </div>
 </div>

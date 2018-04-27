@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BackendService } from './backend.service';
 import { Observable } from 'rxjs/Observable';
-import { UserResponse } from './models';
+import { UserResponse, ApplicationState } from './models';
 import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
@@ -10,7 +10,7 @@ import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  lists$: Observable<UserResponse>;
+  state$: Observable<ApplicationState>;
   title = 'app';
 
   constructor(private backend: BackendService) {
@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.lists$ = this.backend.getUser();
+    this.backend.fetch();
+    this.state$ = this.backend.getState();
   }
 }
