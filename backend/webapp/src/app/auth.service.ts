@@ -1,6 +1,7 @@
 import { UserAgentApplication, Logger, LogLevel } from 'msal';
 import { } from './util';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
 function loggerCallback(logLevel, message, piiLoggingEnabled) {
   console.log(message);
@@ -38,13 +39,20 @@ export class AuthService {
   }
 
   acquireToken() {
-    if (this.needsToken()) {
-      this.userAgentApplication.loginPopup(this.applicationConfig.graphScopes).then(function (tok) {
-        this.setToken(tok);
-      });
-    } else {
-      console.log('found: ' + this.getToken());
-    }
+    return new Observable<string>((evt) => {
+      if (this.needsToken()) {
+        this.userAgentApplication.loginPopup(this.applicationConfig.graphScopes).then((tok) => {
+          console.log('acquired: ' + tok);
+          this.setToken(tok);
+          evt.next(tok);
+        }, (err) => {
+          evt.error(err);
+        });
+      } else {
+        console.log('found: ' + this.getToken());
+        evt.next(this.getToken());
+      }
+    });
   }
 
   getToken() {
@@ -57,6 +65,7 @@ export class AuthService {
   }
 
   clearToken() {
+    console.log('clear token');
     return this.setToken('');
   }
 
