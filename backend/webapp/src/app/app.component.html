@@ -1,9 +1,6 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-</div>
+<mat-toolbar>
+  <span><i class="material-icons">list</i> Shopping List</span>
+</mat-toolbar>
 
 <div *ngIf="(state$ | async).lists">
   <div *ngFor="let list of (state$ | async).lists">
