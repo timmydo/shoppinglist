@@ -60,7 +60,9 @@ export class BackendService {
   mergeUserToState(user: UserResponse): void {
   }
 
+  addList(): void {
 
+  }
 
   /**
    * Handle Http operation that failed.

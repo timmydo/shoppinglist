@@ -4,11 +4,24 @@
 
 <div *ngIf="(state$ | async).lists">
   <div *ngFor="let list of (state$ | async).lists">
-    <h2>{{list.n}}/{{list.id}}</h2>
-    <ul>
-      <li *ngFor="let listItem of list.items">
-        List Item: {{listItem.n}} s: {{listItem.s}}
-      </li>
-    </ul>
+    <mat-card>
+      <mat-card-title>{{list.n}}</mat-card-title>
+      <mat-card-subtitle>{{list.id}}</mat-card-subtitle>
+      <mat-card-content>
+        <mat-selection-list>
+          <mat-list-option *ngFor="let listItem of list.items">
+            List Item: {{listItem.n}} s: {{listItem.s}}
+          </mat-list-option>
+        </mat-selection-list>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-fab color="primary"><i class="material-icons">delete</i></button>
+      </mat-card-actions>
+    </mat-card>
+    <br /><br /><br />
   </div>
+
 </div>
+
+<button mat-fab color="primary" (click)="addList()"><i class="material-icons">note_add</i></button>
+

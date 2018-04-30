@@ -21,4 +21,8 @@ export class AppComponent implements OnInit {
     this.backend.fetch();
     this.state$ = this.backend.getState();
   }
+
+  addList() {
+    this.backend.addList();
+  }
 }

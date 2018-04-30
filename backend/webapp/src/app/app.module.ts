@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatCheckboxModule, MatToolbarModule } from '@angular/material';
+import { MatButtonModule, MatCheckboxModule, MatToolbarModule, MatListModule, MatCardModule } from '@angular/material';
 import { AppComponent } from './app.component';
 import { AuthService } from './auth.service';
 import { BackendService } from './backend.service';
@@ -18,7 +18,7 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    MatButtonModule, MatCheckboxModule, MatToolbarModule
+    MatButtonModule, MatCheckboxModule, MatToolbarModule, MatListModule, MatCardModule
   ],
   providers: [AuthService, BackendService, MessageService,
     {
