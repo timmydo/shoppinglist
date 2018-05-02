@@ -3,18 +3,32 @@
 export class UserRequest {
   a: ListDescriptorObject[];
   r: ListDescriptorObject[]
+  constructor(listsToAdd: ListDescriptorObject[], listsToRemove: ListDescriptorObject[] ) {
+    this.a = listsToAdd;
+    this.r = listsToRemove;
+  }
 }
 
 export class MarkRequest {
   r: string;
   l: string;
   i: ListItemObject;
+
+  constructor(requestId: string, listId: string, listItem: ListItemObject) {
+    this.r = requestId;
+    this.l = listId;
+    this.i = listItem;
+  }
 }
 
 export class ListRequest {
   g: string[];
-  a: ListDescriptorObject[];
   m: MarkRequest[];
+
+  constructor(listsToGet: string[], marks: MarkRequest[]) {
+    this.g = listsToGet;
+    this.m = marks;
+  }
 }
 
 export class ListItemObject {
@@ -48,6 +62,11 @@ export class ListResponse {
 export class ListDescriptorObject {
   id: string;
   n: string;
+
+  constructor(identifier: string, name: string) {
+    this.id = identifier;
+    this.n = name;
+  }
 }
 
 export class UserResponse {

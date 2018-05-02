@@ -8,7 +8,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { MessageService } from './message.service';
 
-import { UserResponse, ListResponse, UserRequest, ApplicationState } from './models';
+import { UserResponse, ListResponse, UserRequest, ApplicationState, ListRequest, ListDescriptorObject } from './models';
 import { AuthService } from './auth.service';
 
 const httpOptions = {
@@ -18,9 +18,12 @@ const httpOptions = {
 @Injectable()
 export class BackendService {
 
+
   dataStore: { state: ApplicationState; };
 
   private meUrl = '/api/v1/me';
+  private listUrl = '/api/v1/list';
+  private userUrl = '/api/v1/user';
   private localStorageStateKey = 'backend_state';
   private _state: BehaviorSubject<ApplicationState>; 
 
@@ -58,10 +61,45 @@ export class BackendService {
   }
 
   mergeUserToState(user: UserResponse): void {
+    console.log(user);
   }
 
-  addList(): void {
+  mergeListToState(list: ListResponse): any {
+    console.log(list);
+  }
 
+  newId(): string {
+    return Math.random().toString(36).substring(2);
+  }
+
+  listRequest(body: ListRequest): void {
+    this.http.post<ListResponse>(this.listUrl, body)
+      .subscribe(response => {
+        this.log(`fetched lists`);
+        this.mergeListToState(response);
+        this._state.next(this.dataStore.state);
+      },
+      catchError(this.handleError<UserResponse>('getUser'))
+      );
+  }
+
+
+  userRequest(body: UserRequest): void {
+    this.http.post<ListResponse>(this.userUrl, body)
+      .subscribe(response => {
+        this.log(`fetched lists`);
+        this.mergeListToState(response);
+        this._state.next(this.dataStore.state);
+      },
+      catchError(this.handleError<UserResponse>('getUser'))
+      );
+  }
+
+
+  addList(): void {
+    var newList = new ListDescriptorObject(this.newId(), '');
+    var userRequest = new UserRequest([newList], []);
+    this.userRequest(userRequest);
   }
 
   /**
