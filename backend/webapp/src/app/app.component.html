@@ -5,7 +5,17 @@
 <div *ngIf="(state$ | async).lists">
   <div *ngFor="let list of (state$ | async).lists">
     <mat-card>
-      <mat-card-title>{{list.list.n || 'Untitled'}}</mat-card-title>
+      <mat-card-title>
+        <div *ngIf="!list.editing">
+          <div>{{list.list.n || 'Untitled'}}</div>
+          <button mat-mini-fab color="primary" (click)="list.editing = true"><i class="material-icons">edit</i></button>
+        </div>
+        <div *ngIf="list.editing">
+          <input type="text" #newName />
+          <button mat-mini-fab color="primary" (click)="updateListTitle(list.list.id, newName)"><i class="material-icons">save</i></button>
+          <button mat-mini-fab color="primary" (click)="list.editing = false"><i class="material-icons">cancel</i></button>
+        </div>
+      </mat-card-title>
       <mat-card-subtitle>{{list.list.id}}</mat-card-subtitle>
       <mat-card-content>
         <mat-selection-list>

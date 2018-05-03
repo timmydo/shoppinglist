@@ -25,4 +25,15 @@ export class AppComponent implements OnInit {
   addList() {
     this.backend.addList();
   }
+
+  editListTitle(list) {
+    list.editing = true;
+  }
+
+  updateListTitle(list, newName) {
+    console.log('save');
+    console.log(list);
+    console.log(newName.value);
+  }
+
 }
