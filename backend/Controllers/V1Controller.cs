@@ -44,7 +44,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("user")]
-        public async Task<UserResponse> ListRequest([FromBody] UserRequest request)
+        public async Task<UserResponse> UserRequest([FromBody] UserRequest request)
         {
             var user = userService.GetCurrentUser();
 

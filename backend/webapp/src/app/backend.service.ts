@@ -8,7 +8,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { MessageService } from './message.service';
 
-import { UserResponse, ListResponse, UserRequest, ApplicationState, ListRequest, ListDescriptorObject } from './models';
+import { UserResponse, ListResponse, UserRequest, ApplicationState, ListRequest, ListDescriptorObject, ListAndItems } from './models';
 import { AuthService } from './auth.service';
 
 const httpOptions = {
@@ -17,7 +17,6 @@ const httpOptions = {
 
 @Injectable()
 export class BackendService {
-
 
   dataStore: { state: ApplicationState; };
 
@@ -62,6 +61,19 @@ export class BackendService {
 
   mergeUserToState(user: UserResponse): void {
     console.log(user);
+    let current = this.dataStore.state.lists;
+    this.dataStore.state.lists = user.l.map(li => new ListAndItems(new ListDescriptorObject(li.id, li.n), this.getCurrentItemsOrEmpty(li.id, current)));
+    console.log('datastore list');
+    console.log(this.dataStore.state.lists);
+  }
+
+  getCurrentItemsOrEmpty(id: string, array: ListAndItems[]): any {
+    let match = array.find(ai => ai.list.id == id);
+    if (match) {
+      return match;
+    }
+
+    return [];
   }
 
   mergeListToState(list: ListResponse): any {

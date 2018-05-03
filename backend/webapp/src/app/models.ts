@@ -76,6 +76,11 @@ export class UserResponse {
 export class ListAndItems {
   public list: ListDescriptorObject;
   public items: ListItemObject[];
+
+  constructor(list: ListDescriptorObject, items: ListItemObject[]) {
+    this.list = list;
+    this.items = items;
+  }
 }
 
 export class ApplicationState {

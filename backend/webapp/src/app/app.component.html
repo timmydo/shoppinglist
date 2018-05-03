@@ -5,8 +5,8 @@
 <div *ngIf="(state$ | async).lists">
   <div *ngFor="let list of (state$ | async).lists">
     <mat-card>
-      <mat-card-title>{{list.n}}</mat-card-title>
-      <mat-card-subtitle>{{list.id}}</mat-card-subtitle>
+      <mat-card-title>{{list.list.n || 'Untitled'}}</mat-card-title>
+      <mat-card-subtitle>{{list.list.id}}</mat-card-subtitle>
       <mat-card-content>
         <mat-selection-list>
           <mat-list-option *ngFor="let listItem of list.items">
@@ -15,7 +15,7 @@
         </mat-selection-list>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-fab color="primary"><i class="material-icons">delete</i></button>
+        <button mat-fab color="primary" (click)="deleteList(list.list.id)"><i class="material-icons">delete</i></button>
       </mat-card-actions>
     </mat-card>
     <br /><br /><br />

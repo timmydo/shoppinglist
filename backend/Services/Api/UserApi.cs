@@ -82,7 +82,7 @@ namespace backend.Services.Api
             {
                 foreach (var item in request.ListsToAdd)
                 {
-                    if (!string.IsNullOrWhiteSpace(item.Id) && !string.IsNullOrWhiteSpace(item.Name))
+                    if (!string.IsNullOrWhiteSpace(item.Id))
                     {
                         user.Lists.Add(item);
                     }
