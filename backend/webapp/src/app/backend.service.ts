@@ -8,7 +8,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { MessageService } from './message.service';
 
-import { UserResponse, ListResponse, UserRequest, ApplicationState, ListRequest, ListDescriptorObject, ListAndItems, ListItemObject } from './models';
+import { UserResponse, ListResponse, UserRequest, ApplicationState, ListRequest, ListDescriptorObject, ListAndItems, ListItemObject, MarkRequest, MarkRequestState, MarkResponse, ListData, MarkResponseReasonCode } from './models';
 import { AuthService } from './auth.service';
 
 const httpOptions = {
@@ -17,6 +17,7 @@ const httpOptions = {
 
 @Injectable()
 export class BackendService {
+
   dataStore: { state: ApplicationState; };
 
   private meUrl = '/api/v1/me';
@@ -28,7 +29,8 @@ export class BackendService {
   constructor(private http: HttpClient, private auth: AuthService, private messageService: MessageService) {
     let initialString = localStorage.getItem(this.localStorageStateKey);
     let initial: ApplicationState = {
-      lists: []
+      lists: [],
+      pendingMarks: [],
     };
 
     if (initialString) {
@@ -39,6 +41,10 @@ export class BackendService {
       initial.lists = [];
     }
 
+    if (!initial.pendingMarks) {
+      initial.pendingMarks = [];
+    }
+
     this._state = <BehaviorSubject<ApplicationState>>new BehaviorSubject(initial);
     this.dataStore = { state: JSON.parse(JSON.stringify(initial)) };
   }
@@ -47,7 +53,7 @@ export class BackendService {
     return this._state.asObservable();
   }
 
-  saveState(): void {
+  private saveState(): void {
     localStorage.setItem(this.localStorageStateKey, JSON.stringify(this.dataStore.state));
   }
 
@@ -63,7 +69,7 @@ export class BackendService {
       );
   }
 
-  mergeUserToState(user: UserResponse): void {
+  private mergeUserToState(user: UserResponse): void {
     console.log('mergeUserToState');
     console.log(user);
     let current = this.dataStore.state.lists;
@@ -73,7 +79,7 @@ export class BackendService {
     console.log(this.dataStore.state);
   }
 
-  getCurrentItemsOrEmpty(id: string, array: ListAndItems[]): ListItemObject[] {
+  private getCurrentItemsOrEmpty(id: string, array: ListAndItems[]): ListItemObject[] {
     let match = array.find(ai => ai.list.id == id);
     if (match && match.items && match.items.map) {
       return match.items.map(li => new ListItemObject(li.n, li.s));
@@ -82,16 +88,35 @@ export class BackendService {
     return [];
   }
 
-  mergeListToState(list: ListResponse): any {
-    console.log('mergeListToState');
-    console.log(list);
+  private processFetchList(ld: ListData): void {
+    this.dataStore.state.lists = this.dataStore.state.lists.map((li) => {
+      if (ld.id == li.list.id) {
+        return new ListAndItems(li.list, ld.i);
+      } else {
+        return li;
+      }
+    });
   }
 
-  newId(): string {
+  private mergeListToState(list: ListResponse): any {
+    console.log('mergeListToState');
+    console.log(list);
+    let failedWrites = list.m.filter((mr) => mr.c == MarkResponseReasonCode.WriteFailed).map((mr) => mr.id);
+    this.dataStore.state.pendingMarks = this.dataStore.state.pendingMarks.filter((val) => {
+      return failedWrites.indexOf(val.r) >= 0
+    });
+    list.l.forEach((lr) => this.processFetchList(lr));
+    this.saveState();
+  }
+
+  private newId(): string {
     return Math.random().toString(36).substring(2);
   }
 
-  listRequest(body: ListRequest): void {
+  private listRequest(body: ListRequest): void {
+    let marksToMake = this.dataStore.state.pendingMarks.concat(body.m);
+    body.m = marksToMake;
+    this.saveState();
     this.http.post<ListResponse>(this.listUrl, body)
       .subscribe(response => {
         this.log(`fetched lists`);
@@ -103,7 +128,7 @@ export class BackendService {
       );
   }
 
-  userRequest(body: UserRequest): void {
+  private userRequest(body: UserRequest): void {
     this.http.post<UserResponse>(this.userUrl, body)
       .subscribe(response => {
         this.log(`fetched user`);
@@ -122,6 +147,14 @@ export class BackendService {
     this.userRequest(userRequest);
   }
 
+  addItem(listId: string, title: string): void {
+    var newList = new ListDescriptorObject(listId, '');
+    var reqId = this.newId();
+    var listItem = new ListItemObject(title, MarkRequestState.Active);
+    var mark = new MarkRequest(reqId, listId, listItem);
+    var req = new ListRequest([listId], [mark]);
+    this.listRequest(req);
+  }
 
   renameList(id: string, name: string): any {
     var listToRename = new ListDescriptorObject(id, name);

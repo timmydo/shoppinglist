@@ -40,6 +40,14 @@ export class ListItemObject {
     this.s = state;
   }
 }
+
+export enum MarkRequestState {
+  None = 0,
+  Active = 1,
+  Complete = 2,
+}
+
+
 export enum MarkResponseReasonCode {
   None = 0,
   ListNotFound = 1,
@@ -90,4 +98,5 @@ export class ListAndItems {
 
 export class ApplicationState {
   public lists: ListAndItems[];
+  public pendingMarks: MarkRequest[];
 }

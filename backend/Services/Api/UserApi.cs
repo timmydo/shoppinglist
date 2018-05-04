@@ -167,11 +167,23 @@ namespace backend.Services.Api
                     }
                     else
                     {
+                        var newList = new ListObject()
+                        {
+                            Id = mark.ListId,
+                            Items = new List<ListItemObject>()
+                            {
+                                mark.Item
+                            },
+                        };
+
+                        await database.Create(newList);
+                        listCache.Add(newList.Id, newList);
+
                         response.Marks.Add(new ListResponse.MarkResponse()
                         {
                             Id = mark.RequestId,
-                            ReasonCode = MarkResponseReasonCode.ListNotFound,
-                            Success = false,
+                            ReasonCode = MarkResponseReasonCode.None,
+                            Success = true,
                         });
                     }
                 }
@@ -185,7 +197,7 @@ namespace backend.Services.Api
                     response.Lists.Add(new ListResponse.ListData()
                     {
                         Id = listToGet,
-                        Items = listObject.Items,
+                        Items = listObject?.Items ?? new List<ListItemObject>(),
                     });
                 }
             }

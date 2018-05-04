@@ -8,12 +8,13 @@
       <mat-card-title>
         <div *ngIf="!list.editing">
           <div>{{list.list.n || 'Untitled'}}</div>
-          <button mat-mini-fab color="primary" (click)="list.editing = true"><i class="material-icons">edit</i></button>
+          <button mat-icon-button color="primary" (click)="list.editing = true"><i class="material-icons">edit</i></button>
         </div>
         <div *ngIf="list.editing">
           <input type="text" #newName />
-          <button mat-mini-fab color="primary" (click)="updateListTitle(list.list.id, newName)"><i class="material-icons">save</i></button>
-          <button mat-mini-fab color="primary" (click)="list.editing = false"><i class="material-icons">cancel</i></button>
+          <button mat-icon-button color="primary" (click)="updateListTitle(list.list.id, newName)"><i class="material-icons">save</i></button>
+          <button mat-icon-button color="primary" (click)="list.editing = false"><i class="material-icons">cancel</i></button>
+          <button mat-icon-button color="secondary" (click)="deleteList(list.list.id)"><i class="material-icons">delete</i></button>
         </div>
       </mat-card-title>
       <mat-card-subtitle>{{list.list.id}}</mat-card-subtitle>
@@ -25,7 +26,8 @@
         </mat-selection-list>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-fab color="primary" (click)="deleteList(list.list.id)"><i class="material-icons">delete</i></button>
+        <input type="text" #newItem />
+        <button mat-icon-button color="primary" (click)="addItem(list.list.id, newItem)"><i class="material-icons">add</i></button>
       </mat-card-actions>
     </mat-card>
     <br /><br /><br />

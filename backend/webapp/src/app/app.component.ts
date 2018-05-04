@@ -34,6 +34,13 @@ export class AppComponent implements OnInit {
     list.editing = true;
   }
 
+  addItem(listId, title) {
+    console.log('add');
+    console.log(listId);
+    console.log(title.value);
+    this.backend.addItem(listId, title.value);
+  }
+
   updateListTitle(list, newName) {
     console.log('save');
     console.log(list);
