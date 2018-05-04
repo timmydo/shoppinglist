@@ -82,7 +82,7 @@ namespace backend
             }
 
             app.UseAuthentication();
-            app.UseMiddleware<TimeoutMiddleware>(5000);
+            app.UseMiddleware<TimeoutMiddleware>(25000);
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvc();

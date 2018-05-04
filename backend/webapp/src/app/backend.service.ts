@@ -8,7 +8,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { MessageService } from './message.service';
 
-import { UserResponse, ListResponse, UserRequest, ApplicationState, ListRequest, ListDescriptorObject, ListAndItems } from './models';
+import { UserResponse, ListResponse, UserRequest, ApplicationState, ListRequest, ListDescriptorObject, ListAndItems, ListItemObject } from './models';
 import { AuthService } from './auth.service';
 
 const httpOptions = {
@@ -17,14 +17,13 @@ const httpOptions = {
 
 @Injectable()
 export class BackendService {
-
   dataStore: { state: ApplicationState; };
 
   private meUrl = '/api/v1/me';
   private listUrl = '/api/v1/list';
   private userUrl = '/api/v1/user';
   private localStorageStateKey = 'backend_state';
-  private _state: BehaviorSubject<ApplicationState>; 
+  private _state: BehaviorSubject<ApplicationState>;
 
   constructor(private http: HttpClient, private auth: AuthService, private messageService: MessageService) {
     let initialString = localStorage.getItem(this.localStorageStateKey);
@@ -36,6 +35,10 @@ export class BackendService {
       initial = JSON.parse(initialString);
     }
 
+    if (!initial.lists) {
+      initial.lists = [];
+    }
+
     this._state = <BehaviorSubject<ApplicationState>>new BehaviorSubject(initial);
     this.dataStore = { state: JSON.parse(JSON.stringify(initial)) };
   }
@@ -44,15 +47,16 @@ export class BackendService {
     return this._state.asObservable();
   }
 
-  saveState(user: UserResponse): void {
-    localStorage.setItem(this.localStorageStateKey, JSON.stringify(this._state));
+  saveState(): void {
+    localStorage.setItem(this.localStorageStateKey, JSON.stringify(this.dataStore.state));
   }
 
-  fetch() : void {
+  fetch(): void {
     this.http.get<UserResponse>(this.meUrl)
       .subscribe(user => {
-        this.log(`fetched user`);
+        this.log(`fetched me`);
         this.mergeUserToState(user);
+        this.saveState();
         this._state.next(this.dataStore.state);
       },
       catchError(this.handleError<UserResponse>('getUser'))
@@ -60,23 +64,26 @@ export class BackendService {
   }
 
   mergeUserToState(user: UserResponse): void {
+    console.log('mergeUserToState');
     console.log(user);
     let current = this.dataStore.state.lists;
+    console.log(current);
     this.dataStore.state.lists = user.l.map(li => new ListAndItems(new ListDescriptorObject(li.id, li.n), this.getCurrentItemsOrEmpty(li.id, current)));
-    console.log('datastore list');
-    console.log(this.dataStore.state.lists);
+    console.log('datastore state');
+    console.log(this.dataStore.state);
   }
 
-  getCurrentItemsOrEmpty(id: string, array: ListAndItems[]): any {
+  getCurrentItemsOrEmpty(id: string, array: ListAndItems[]): ListItemObject[] {
     let match = array.find(ai => ai.list.id == id);
-    if (match) {
-      return match;
+    if (match && match.items && match.items.map) {
+      return match.items.map(li => new ListItemObject(li.n, li.s));
     }
 
     return [];
   }
 
   mergeListToState(list: ListResponse): any {
+    console.log('mergeListToState');
     console.log(list);
   }
 
@@ -89,18 +96,19 @@ export class BackendService {
       .subscribe(response => {
         this.log(`fetched lists`);
         this.mergeListToState(response);
+        this.saveState();
         this._state.next(this.dataStore.state);
       },
       catchError(this.handleError<UserResponse>('getUser'))
       );
   }
 
-
   userRequest(body: UserRequest): void {
-    this.http.post<ListResponse>(this.userUrl, body)
+    this.http.post<UserResponse>(this.userUrl, body)
       .subscribe(response => {
-        this.log(`fetched lists`);
-        this.mergeListToState(response);
+        this.log(`fetched user`);
+        this.mergeUserToState(response);
+        this.saveState();
         this._state.next(this.dataStore.state);
       },
       catchError(this.handleError<UserResponse>('getUser'))
@@ -113,6 +121,20 @@ export class BackendService {
     var userRequest = new UserRequest([newList], []);
     this.userRequest(userRequest);
   }
+
+
+  renameList(id: string, name: string): any {
+    var listToRename = new ListDescriptorObject(id, name);
+    var userRequest = new UserRequest([listToRename], [listToRename]);
+    this.userRequest(userRequest);
+  }
+
+  deleteList(id: string): any {
+    var listToDelete = new ListDescriptorObject(id, '');
+    var userRequest = new UserRequest([], [listToDelete]);
+    this.userRequest(userRequest);
+  }
+
 
   /**
    * Handle Http operation that failed.

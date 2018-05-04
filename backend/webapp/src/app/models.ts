@@ -34,6 +34,11 @@ export class ListRequest {
 export class ListItemObject {
   n: string;
   s: number;
+
+  constructor(name: string, state: number) {
+    this.n = name;
+    this.s = state;
+  }
 }
 export enum MarkResponseReasonCode {
   None = 0,

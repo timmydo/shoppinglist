@@ -26,6 +26,10 @@ export class AppComponent implements OnInit {
     this.backend.addList();
   }
 
+  deleteList(id) {
+    this.backend.deleteList(id);
+  }
+
   editListTitle(list) {
     list.editing = true;
   }
@@ -34,6 +38,7 @@ export class AppComponent implements OnInit {
     console.log('save');
     console.log(list);
     console.log(newName.value);
+    this.backend.renameList(list, newName.value);
   }
 
 }
