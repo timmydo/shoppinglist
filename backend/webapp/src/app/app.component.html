@@ -20,8 +20,12 @@
       <mat-card-subtitle>{{list.list.id}}</mat-card-subtitle>
       <mat-card-content>
         <mat-selection-list>
-          <mat-list-option *ngFor="let listItem of list.items">
+          <mat-list-option *ngFor="let listItem of list.items | incomplete" (click)="changeItemState(list, listItem.n, 2)">
             List Item: {{listItem.n}} s: {{listItem.s}}
+          </mat-list-option>
+
+          <mat-list-option *ngFor="let listItem of list.items | completed" (click)="changeItemState(list, listItem.n, 1)">
+            Completed List Item: {{listItem.n}} s: {{listItem.s}}
           </mat-list-option>
         </mat-selection-list>
       </mat-card-content>

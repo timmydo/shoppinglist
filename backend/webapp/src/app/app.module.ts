@@ -9,10 +9,11 @@ import { MessageService } from './message.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TokenInterceptor } from './token.interceptor';
 import { HttpClientModule } from '@angular/common/http';
+import { CallbackPipe } from './pipes';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent, CallbackPipe
   ],
   imports: [
     BrowserModule,

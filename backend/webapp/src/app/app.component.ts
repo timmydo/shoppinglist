@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BackendService } from './backend.service';
 import { Observable } from 'rxjs/Observable';
-import { UserResponse, ApplicationState } from './models';
+import { UserResponse, ApplicationState, MarkRequestState } from './models';
 import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
@@ -46,6 +46,21 @@ export class AppComponent implements OnInit {
     console.log(list);
     console.log(newName.value);
     this.backend.renameList(list, newName.value);
+  }
+
+  changeItemState(listId, itemName, state) {
+    console.log('change');
+    console.log(listId);
+    console.log(itemName);
+    console.log(state);
+  }
+
+  isCompleted(item) {
+    return item.s === MarkRequestState.Complete;
+  }
+
+  isActive(item) {
+    return item.s === MarkRequestState.Active;
   }
 
 }
