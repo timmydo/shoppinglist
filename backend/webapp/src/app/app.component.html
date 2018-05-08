@@ -1,5 +1,5 @@
 <mat-toolbar>
-  <span><i class="material-icons">list</i> Shopping List</span>
+  <span><i class="material-icons">list</i></span>
 </mat-toolbar>
 
 <div *ngIf="(state$ | async).lists">
@@ -7,31 +7,35 @@
     <mat-card>
       <mat-card-title>
         <div *ngIf="!list.editing">
-          <div>{{list.list.n || 'Untitled'}}</div>
-          <button mat-icon-button color="primary" (click)="list.editing = true"><i class="material-icons">edit</i></button>
+          <div (dblclick)="list.editing = true">{{list.list.n || 'Untitled'}}</div>
         </div>
         <div *ngIf="list.editing">
           <input type="text" #newName />
           <button mat-icon-button color="primary" (click)="updateListTitle(list.list.id, newName)"><i class="material-icons">save</i></button>
           <button mat-icon-button color="primary" (click)="list.editing = false"><i class="material-icons">cancel</i></button>
+          <button mat-icon-button color="primary" (click)="list.share = !list.share"><i class="material-icons">share</i></button>
           <button mat-icon-button color="secondary" (click)="deleteList(list.list.id)"><i class="material-icons">delete</i></button>
         </div>
       </mat-card-title>
-      <mat-card-subtitle>{{list.list.id}}</mat-card-subtitle>
+      <mat-card-subtitle *ngIf="list.share">{{list.list.id}}</mat-card-subtitle>
       <mat-card-content>
         <mat-selection-list>
-          <mat-list-option *ngFor="let listItem of list.items | incomplete" (click)="changeItemState(list, listItem.n, 2)">
-            List Item: {{listItem.n}} s: {{listItem.s}}
+          <mat-list-option *ngFor="let listItem of list.items | callback: isActive" (click)="changeItemState(list.list.id, listItem, 2)">
+            {{listItem.n}}
           </mat-list-option>
 
-          <mat-list-option *ngFor="let listItem of list.items | completed" (click)="changeItemState(list, listItem.n, 1)">
-            Completed List Item: {{listItem.n}} s: {{listItem.s}}
+          <mat-list-option *ngFor="let listItem of list.items | callback: isCompleted" [selected]="true" (click)="changeItemState(list.list.id, listItem, 1)">
+            <span style="text-decoration: line-through;">{{listItem.n}}</span>
           </mat-list-option>
         </mat-selection-list>
       </mat-card-content>
       <mat-card-actions>
-        <input type="text" #newItem />
-        <button mat-icon-button color="primary" (click)="addItem(list.list.id, newItem)"><i class="material-icons">add</i></button>
+        <form (submit)="addItem(list.list.id, newItem, $event)">
+          <mat-form-field>
+            <input matInput #newItem />
+          </mat-form-field>
+          <button mat-icon-button color="primary"><i class="material-icons">playlist_add</i></button>
+        </form>
       </mat-card-actions>
     </mat-card>
     <br /><br /><br />
@@ -39,5 +43,10 @@
 
 </div>
 
-<button mat-fab color="primary" (click)="addList()"><i class="material-icons">note_add</i></button>
-
+<button mat-fab color="primary" (click)="addList(shareName.value)"><i class="material-icons">note_add</i></button>
+<button mat-fab color="primary" (click)="showShareText = !showShareText"><i class="material-icons">share</i></button>
+<div *ngIf="showShareText">
+  <mat-form-field>
+    <input matInput #shareName />
+  </mat-form-field>
+</div>

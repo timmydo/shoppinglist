@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BackendService } from './backend.service';
 import { Observable } from 'rxjs/Observable';
-import { UserResponse, ApplicationState, MarkRequestState } from './models';
+import { UserResponse, ApplicationState, MarkRequestState, ListItemObject } from './models';
 import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
@@ -22,8 +22,10 @@ export class AppComponent implements OnInit {
     this.state$ = this.backend.getState();
   }
 
-  addList() {
-    this.backend.addList();
+  addList(shareName) {
+    console.log('addList');
+    console.log(shareName);
+    this.backend.addList(shareName);
   }
 
   deleteList(id) {
@@ -34,10 +36,11 @@ export class AppComponent implements OnInit {
     list.editing = true;
   }
 
-  addItem(listId, title) {
+  addItem(listId, title, $event) {
     console.log('add');
     console.log(listId);
     console.log(title.value);
+    $event.preventDefault();
     this.backend.addItem(listId, title.value);
   }
 
@@ -48,11 +51,13 @@ export class AppComponent implements OnInit {
     this.backend.renameList(list, newName.value);
   }
 
-  changeItemState(listId, itemName, state) {
+  changeItemState(listId, item: ListItemObject, state) {
+    item.s = state;
     console.log('change');
     console.log(listId);
-    console.log(itemName);
+    console.log(item);
     console.log(state);
+    this.backend.changeItemState(listId, item.n, state);
   }
 
   isCompleted(item) {

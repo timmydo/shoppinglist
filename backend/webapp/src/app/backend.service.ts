@@ -17,7 +17,6 @@ const httpOptions = {
 
 @Injectable()
 export class BackendService {
-
   dataStore: { state: ApplicationState; };
 
   private meUrl = '/api/v1/me';
@@ -141,17 +140,19 @@ export class BackendService {
   }
 
 
-  addList(): void {
-    var newList = new ListDescriptorObject(this.newId(), '');
+  addList(shareName: string): void {
+    var id = this.newId();
+    if (shareName) {
+      id = shareName;
+    }
+    var newList = new ListDescriptorObject(id, '');
     var userRequest = new UserRequest([newList], []);
     this.userRequest(userRequest);
   }
 
   addItem(listId: string, title: string): void {
-    var newList = new ListDescriptorObject(listId, '');
-    var reqId = this.newId();
     var listItem = new ListItemObject(title, MarkRequestState.Active);
-    var mark = new MarkRequest(reqId, listId, listItem);
+    var mark = new MarkRequest(this.newId(), listId, listItem);
     var req = new ListRequest([listId], [mark]);
     this.listRequest(req);
   }
@@ -168,6 +169,13 @@ export class BackendService {
     this.userRequest(userRequest);
   }
 
+
+  changeItemState(listId: string, title: string, state: MarkRequestState): void {
+    var listItem = new ListItemObject(title, state);
+    var mark = new MarkRequest(this.newId(), listId, listItem);
+    var req = new ListRequest([listId], [mark]);
+    this.listRequest(req);
+  }
 
   /**
    * Handle Http operation that failed.
