@@ -43,10 +43,13 @@
 
 </div>
 
-<button mat-fab color="primary" (click)="addList(shareName.value)"><i class="material-icons">note_add</i></button>
-<button mat-fab color="primary" (click)="showShareText = !showShareText"><i class="material-icons">share</i></button>
-<div *ngIf="showShareText">
-  <mat-form-field>
-    <input matInput #shareName />
-  </mat-form-field>
+<button mat-fab color="primary" *ngIf="!addListForm" (click)="addListForm = true"><i class="material-icons">note_add</i></button>
+<div *ngIf="addListForm">
+  <form (submit)="addList(shareName.value, $event)">
+    <mat-form-field>
+      <input matInput #shareName placeholder="ID" />
+    </mat-form-field>
+    <button mat-icon-button color="primary" type="submit"><i class="material-icons">note_add</i></button>
+    <button mat-icon-button color="primary" (click)="addListForm = false" type="reset"><i class="material-icons">cancel</i></button>
+  </form>
 </div>

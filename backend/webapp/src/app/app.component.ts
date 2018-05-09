@@ -22,7 +22,8 @@ export class AppComponent implements OnInit {
     this.state$ = this.backend.getState();
   }
 
-  addList(shareName) {
+  addList(shareName, $event) {
+    $event.preventDefault();
     this.backend.addList(shareName);
   }
 
