@@ -23,8 +23,6 @@ export class AppComponent implements OnInit {
   }
 
   addList(shareName) {
-    console.log('addList');
-    console.log(shareName);
     this.backend.addList(shareName);
   }
 
@@ -37,26 +35,16 @@ export class AppComponent implements OnInit {
   }
 
   addItem(listId, title, $event) {
-    console.log('add');
-    console.log(listId);
-    console.log(title.value);
     $event.preventDefault();
     this.backend.addItem(listId, title.value);
   }
 
   updateListTitle(list, newName) {
-    console.log('save');
-    console.log(list);
-    console.log(newName.value);
     this.backend.renameList(list, newName.value);
   }
 
   changeItemState(listId, item: ListItemObject, state) {
     item.s = state;
-    console.log('change');
-    console.log(listId);
-    console.log(item);
-    console.log(state);
     this.backend.changeItemState(listId, item.n, state);
   }
 

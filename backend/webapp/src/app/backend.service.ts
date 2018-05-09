@@ -59,7 +59,6 @@ export class BackendService {
   fetch(): void {
     this.http.get<UserResponse>(this.meUrl)
       .subscribe(user => {
-        this.log(`fetched me`);
         this.mergeUserToState(user);
         this.saveState();
         this._state.next(this.dataStore.state);
@@ -69,13 +68,12 @@ export class BackendService {
   }
 
   private mergeUserToState(user: UserResponse): void {
-    console.log('mergeUserToState');
-    console.log(user);
+    this.log('mergeUserToState');
+    this.log(user);
     let current = this.dataStore.state.lists;
-    console.log(current);
     this.dataStore.state.lists = user.l.map(li => new ListAndItems(new ListDescriptorObject(li.id, li.n), this.getCurrentItemsOrEmpty(li.id, current)));
-    console.log('datastore state');
-    console.log(this.dataStore.state);
+    this.log('datastore state');
+    this.log(this.dataStore.state);
   }
 
   private getCurrentItemsOrEmpty(id: string, array: ListAndItems[]): ListItemObject[] {
@@ -98,8 +96,6 @@ export class BackendService {
   }
 
   private mergeListToState(list: ListResponse): any {
-    console.log('mergeListToState');
-    console.log(list);
     let failedWrites = list.m.filter((mr) => mr.c == MarkResponseReasonCode.WriteFailed).map((mr) => mr.id);
     this.dataStore.state.pendingMarks = this.dataStore.state.pendingMarks.filter((val) => {
       return failedWrites.indexOf(val.r) >= 0
@@ -118,7 +114,6 @@ export class BackendService {
     this.saveState();
     this.http.post<ListResponse>(this.listUrl, body)
       .subscribe(response => {
-        this.log(`fetched lists`);
         this.mergeListToState(response);
         this.saveState();
         this._state.next(this.dataStore.state);
@@ -130,7 +125,6 @@ export class BackendService {
   private userRequest(body: UserRequest): void {
     this.http.post<UserResponse>(this.userUrl, body)
       .subscribe(response => {
-        this.log(`fetched user`);
         this.mergeUserToState(response);
         this.saveState();
         this._state.next(this.dataStore.state);
@@ -197,8 +191,7 @@ export class BackendService {
     };
   }
 
-  /** Log a HeroService message with the MessageService */
-  private log(message: string) {
-    this.messageService.add('BackendService: ' + message);
+  private log(message: any) {
+    this.messageService.add('BackendService: ' + JSON.stringify(message));
   }
 }
