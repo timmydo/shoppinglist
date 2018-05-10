@@ -6,6 +6,12 @@ COPY *.csproj .
 RUN dotnet restore
 
 COPY . .
+WORKDIR /app/webapp
+RUN npm install -g @angular/cli
+RUN npm install
+RUN ng build
+
+WORKDIR /app
 RUN dotnet publish --output /out/ --configuration Release
 
 # runtime image
