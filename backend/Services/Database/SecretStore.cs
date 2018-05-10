@@ -15,7 +15,7 @@ namespace backend.Services.Database
 
         public SecretStore(IOptions<SecretSettings> options)
         {
-            this.options = options.Value;
+            this.options = options?.Value;
         }
 
         public string Get(string key)
