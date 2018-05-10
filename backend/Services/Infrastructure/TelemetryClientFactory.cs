@@ -23,8 +23,13 @@ namespace backend.Services.Infrastructure
         {
             return new TelemetryClient(new TelemetryConfiguration()
             {
-                InstrumentationKey = secretStore.Get(AIKEY),
+                InstrumentationKey = GetInstrumentationKey(),
             });
+        }
+
+        public string GetInstrumentationKey()
+        {
+            return secretStore.Get(AIKEY);
         }
     }
 }

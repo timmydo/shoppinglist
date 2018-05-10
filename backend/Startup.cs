@@ -24,9 +24,13 @@ namespace backend
 
         public Startup(IHostingEnvironment env)
         {
+            Configuration = BuildConfiguration();
+        }
+
+        public static IConfigurationRoot BuildConfiguration()
+        {
             var baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-            Console.WriteLine("Current directory " + baseDir);
-            Configuration = new ConfigurationBuilder()
+            return new ConfigurationBuilder()
                 .SetBasePath(baseDir)
                 .AddIniFile("config.ini", optional: false)
                 .AddEnvironmentVariables()

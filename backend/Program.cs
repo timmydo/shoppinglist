@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using backend.Services.Database;
+using backend.Services.Infrastructure;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -17,10 +19,15 @@ namespace backend
             BuildWebHost(args).Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseApplicationInsights(Environment.GetEnvironmentVariable("SECRET_AI_KEY"))
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            var builder = WebHost.CreateDefaultBuilder(args);
+            var config = Startup.BuildConfiguration();
+            var tcf = new TelemetryClientFactory(new SecretStore(null));
+            return builder
+                .UseApplicationInsights(tcf.GetInstrumentationKey())
                 .UseStartup<Startup>()
                 .Build();
+        }
     }
 }

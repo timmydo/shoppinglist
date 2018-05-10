@@ -9,5 +9,7 @@ namespace backend.Interfaces.Infrastructure
     public interface ITelemetryClientFactory
     {
         TelemetryClient Create();
+
+        string GetInstrumentationKey();
     }
 }

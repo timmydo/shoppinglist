@@ -22,7 +22,7 @@ namespace backend.Services.Database
         {
             var envKey = $"SECRET_{key}".ToUpperInvariant();
             var envVal = Environment.GetEnvironmentVariable(envKey);
-            if (string.IsNullOrEmpty(envVal))
+            if (string.IsNullOrEmpty(envVal) && options != null)
             {
                 return File.ReadAllText(Path.Combine(this.options.BasePath, key + ".txt")).Trim();
             }
