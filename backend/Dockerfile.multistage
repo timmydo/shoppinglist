@@ -12,4 +12,4 @@ RUN dotnet publish --output /out/ --configuration Release
 FROM microsoft/aspnetcore:2.0
 WORKDIR /app
 COPY --from=build /out .
-ENTRYPOINT [ "dotnet", "docker-tutorial.dll" ]
+ENTRYPOINT [ "dotnet", "backend.dll" ]
