@@ -21,6 +21,7 @@ namespace backend.Services.Infrastructure
             container.AddSingleton<IUserApi, UserApi>();
             container.AddSingleton<IUserService, UserService>();
             container.AddSingleton<IMetricTrackerFactory, MetricTrackerFactory>();
+            container.AddSingleton<ITelemetryClientFactory, TelemetryClientFactory>();
         }
     }
 }

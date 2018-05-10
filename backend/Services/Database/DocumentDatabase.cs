@@ -30,8 +30,6 @@ namespace backend.Services.Database
             var authKey = secretStore.Get(this.options.AuthKey);
             var cp = new ConnectionPolicy()
             {
-                ConnectionMode = ConnectionMode.Direct,
-                ConnectionProtocol = Protocol.Tcp,
                 RequestTimeout = TimeSpan.FromSeconds(5),
                 RetryOptions = new RetryOptions()
                 {

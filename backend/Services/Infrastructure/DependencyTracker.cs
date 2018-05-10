@@ -1,10 +1,7 @@
-﻿using backend.Interfaces.Infrastructure;
+using backend.Interfaces.Infrastructure;
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace backend.Services.Infrastructure
@@ -13,9 +10,9 @@ namespace backend.Services.Infrastructure
     {
         private readonly TelemetryClient client;
 
-        public DependencyTracker()
+        public DependencyTracker(ITelemetryClientFactory telemetryClientFactory)
         {
-            this.client = new TelemetryClient();
+            this.client = telemetryClientFactory.Create();
         }
 
         public async Task<T> TrackAsync<T>(string area, string method, Func<IDependencyInvocation, Task<T>> action)

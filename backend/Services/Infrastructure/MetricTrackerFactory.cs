@@ -12,9 +12,9 @@ namespace backend.Services.Infrastructure
     {
         private readonly TelemetryClient client;
 
-        public MetricTrackerFactory()
+        public MetricTrackerFactory(ITelemetryClientFactory telemetryClientFactory)
         {
-            this.client = new TelemetryClient();
+            this.client = telemetryClientFactory.Create();
         }
 
         public IMetricTracker Create(string name)

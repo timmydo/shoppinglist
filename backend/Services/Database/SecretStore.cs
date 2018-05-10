@@ -1,4 +1,4 @@
-﻿using backend.Interfaces.Database;
+using backend.Interfaces.Database;
 using backend.Models.Config;
 using Microsoft.Extensions.Options;
 using System;
@@ -20,7 +20,14 @@ namespace backend.Services.Database
 
         public string Get(string key)
         {
-            return File.ReadAllText(Path.Combine(this.options.BasePath, key + ".txt")).Trim();
+            var envKey = $"SECRET_{key}".ToUpperInvariant();
+            var envVal = Environment.GetEnvironmentVariable(envKey);
+            if (string.IsNullOrEmpty(envVal))
+            {
+                return File.ReadAllText(Path.Combine(this.options.BasePath, key + ".txt")).Trim();
+            }
+
+            return envVal;
         }
     }
 }
