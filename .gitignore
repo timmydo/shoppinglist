@@ -6,3 +6,4 @@ out/
 *.suo
 node_modules/
 /backend/wwwroot
+*.secret

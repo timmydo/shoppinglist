@@ -62,8 +62,12 @@ export class BackendService {
         this.mergeUserToState(user);
         this.saveState();
         this._state.next(this.dataStore.state);
+        if (user.l) {
+          let lr = new ListRequest(user.l.map(li => li.id), []);
+          this.listRequest(lr);
+        }
       },
-      catchError(this.handleError<UserResponse>('getUser'))
+        catchError(this.handleError<UserResponse>('getUser'))
       );
   }
 
@@ -118,7 +122,7 @@ export class BackendService {
         this.saveState();
         this._state.next(this.dataStore.state);
       },
-      catchError(this.handleError<UserResponse>('getUser'))
+        catchError(this.handleError<UserResponse>('getUser'))
       );
   }
 
@@ -129,7 +133,7 @@ export class BackendService {
         this.saveState();
         this._state.next(this.dataStore.state);
       },
-      catchError(this.handleError<UserResponse>('getUser'))
+        catchError(this.handleError<UserResponse>('getUser'))
       );
   }
 

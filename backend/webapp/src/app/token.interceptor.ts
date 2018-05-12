@@ -35,8 +35,11 @@ export class TokenInterceptor implements HttpInterceptor {
         }, (err: any) => {
           if (err instanceof HttpErrorResponse) {
             if (err.status === 401) {
+              console.log('clear token');
               this.auth.clearToken();
               this.auth.acquireToken();
+            } else {
+              console.log('unhandled error in token int');
             }
           }
         });
