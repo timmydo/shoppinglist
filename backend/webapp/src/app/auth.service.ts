@@ -9,10 +9,14 @@ function loggerCallback(logLevel, message, piiLoggingEnabled) {
 
 @Injectable()
 export class AuthService {
+
   userAgentApplication: UserAgentApplication;
   applicationConfig: { clientID: string; graphScopes: string[]; };
+  hashPrefix: string;
 
   constructor() {
+    this.hashPrefix = '#id_token=';
+
     this.applicationConfig = {
       clientID: '0cd9ecf8-f3ec-475e-8882-8292b40e7516',
       graphScopes: ["user.read"]
@@ -23,35 +27,50 @@ export class AuthService {
     this.userAgentApplication = new UserAgentApplication(
       this.applicationConfig.clientID,
       null, //'https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad',
-      this.authCallback,
+      (a, b, c, d) => this.authCallback(a,b,c,d),
       { logger: logger, cacheLocation: 'localStorage' }); //logger and cacheLocation are optional parameters.
     //userAgentApplication has other optional parameters like redirectUri which can be assigned as shown above.Please refer to the docs to see the full list and their default values.
 
+    this.checkLocationForToken();
+  }
+
+  checkLocationForToken(): any {
+    if (this.userAgentApplication.isCallback(window.location.hash)) {
+      if (window.location.hash.startsWith(this.hashPrefix)) {
+        this.setToken(window.location.hash.substring(this.hashPrefix.length));
+        window.location.hash = '';
+      }
+    }
   }
 
   authCallback(errorDesc, token, error, tokenType) {
+    if (tokenType !== "id_token") {
+      return;
+    }
+
     if (token) {
-      // do nothing?
+      console.log("authCallback " + token);
+      this.setToken(token);
     }
     else {
-      console.log(error + ":" + errorDesc);
+      console.log("authCallback: " + error + ":" + errorDesc);
     }
   }
 
   acquireToken() {
     return new Observable<string>((evt) => {
       if (this.needsToken()) {
-        this.userAgentApplication.loginPopup(this.applicationConfig.graphScopes).then((tok) => {
-          console.log('acquired: ' + tok);
-          this.setToken(tok);
-          evt.next(tok);
-        }, (err) => {
-          evt.error(err);
-        });
-      } else {
-        console.log('found: ' + this.getToken());
-        evt.next(this.getToken());
+        console.log('needs token');
+        this.checkLocationForToken();
+
+        if (this.needsToken()) {
+          console.log('needs token, not in url');
+          this.userAgentApplication.loginRedirect(this.applicationConfig.graphScopes);
+        }
       }
+
+      console.log('found: ' + this.getToken());
+      evt.next(this.getToken());
     });
   }
 

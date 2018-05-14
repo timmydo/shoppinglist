@@ -57,8 +57,10 @@ export class BackendService {
   }
 
   fetch(): void {
+    this.log('fetch called');
     this.http.get<UserResponse>(this.meUrl)
       .subscribe(user => {
+        this.log('fetch returned');
         this.mergeUserToState(user);
         this.saveState();
         this._state.next(this.dataStore.state);
