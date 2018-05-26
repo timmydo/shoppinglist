@@ -141,7 +141,9 @@ namespace backend.Services.Api
                                 Success = false,
                             });
                         }
-                        else if (mark.Item.State != ListItemStates.Active && mark.Item.State != ListItemStates.Complete)
+                        else if (mark.Item.State != ListItemStates.Active
+                            && mark.Item.State != ListItemStates.Complete
+                            && mark.Item.State != ListItemStates.Deleted)
                         {
                             response.Marks.Add(new ListResponse.MarkResponse()
                             {
@@ -154,7 +156,11 @@ namespace backend.Services.Api
                         {
 
                             listObject.Items = listObject.Items.Where(li => !string.Equals(li.Name, mark.Item.Name)).ToList();
-                            listObject.Items.Add(mark.Item);
+                            if (mark.Item.State != ListItemStates.Deleted)
+                            {
+                                listObject.Items.Add(mark.Item);
+                            }
+
                             if (needsSaving.ContainsKey(listObject))
                             {
                                 needsSaving[listObject].Add(mark.RequestId);
