@@ -77,7 +77,8 @@ export class BackendService {
     this.log('mergeUserToState');
     this.log(user);
     let current = this.dataStore.state.lists;
-    this.dataStore.state.lists = user.l.map(li => new ListAndItems(new ListDescriptorObject(li.id, li.n), this.getCurrentItemsOrEmpty(li.id, current)));
+    let defaultShowCompletedValue = false;
+    this.dataStore.state.lists = user.l.map(li => new ListAndItems(new ListDescriptorObject(li.id, li.n), this.getCurrentItemsOrEmpty(li.id, current), defaultShowCompletedValue));
     this.log('datastore state');
     this.log(this.dataStore.state);
   }
@@ -94,7 +95,8 @@ export class BackendService {
   private processFetchList(ld: ListData): void {
     this.dataStore.state.lists = this.dataStore.state.lists.map((li) => {
       if (ld.id == li.list.id) {
-        return new ListAndItems(li.list, ld.i);
+        let items = ld.i.sort((a, b) => a.n.localeCompare(b.n));
+        return new ListAndItems(li.list, items, li.showCompleted);
       } else {
         return li;
       }

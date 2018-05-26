@@ -30,11 +30,13 @@
           <i *ngIf="!list.showCompleted" class="material-icons">expand_more</i>
         </button>
 
-        <mat-selection-list *ngIf="list.showCompleted">
-          <mat-list-option *ngFor="let listItem of list.items | callback: isCompleted" [selected]="true" (click)="changeItemState(list.list.id, listItem, 1)">
+        <mat-list *ngIf="list.showCompleted">
+          <mat-list-item *ngFor="let listItem of list.items | callback: isCompleted">
             <span style="text-decoration: line-through;">{{listItem.n}}</span>
-          </mat-list-option>
-        </mat-selection-list>
+            <button mat-icon-button color="primary" (click)="changeItemState(list.list.id, listItem, 1)"><i class="material-icons">check_box</i></button>
+            <button mat-icon-button color="primary" (click)="changeItemState(list.list.id, listItem, 3)"><i class="material-icons">delete</i></button>
+          </mat-list-item>
+        </mat-list>
       </mat-card-content>
       <mat-card-actions>
         <form (submit)="addItem(list.list.id, newItem, $event)">

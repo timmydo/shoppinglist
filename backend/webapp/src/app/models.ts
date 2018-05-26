@@ -89,10 +89,12 @@ export class UserResponse {
 export class ListAndItems {
   public list: ListDescriptorObject;
   public items: ListItemObject[];
+  public showCompleted: boolean;
 
-  constructor(list: ListDescriptorObject, items: ListItemObject[]) {
+  constructor(list: ListDescriptorObject, items: ListItemObject[], showCompleted: boolean) {
     this.list = list;
     this.items = items;
+    this.showCompleted = showCompleted;
   }
 }
 
