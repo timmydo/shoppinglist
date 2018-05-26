@@ -23,7 +23,14 @@
           <mat-list-option *ngFor="let listItem of list.items | callback: isActive" (click)="changeItemState(list.list.id, listItem, 2)">
             {{listItem.n}}
           </mat-list-option>
+        </mat-selection-list>
 
+        <button mat-icon-button color="secondary" (click)="list.showCompleted = !list.showCompleted">
+          <i *ngIf="list.showCompleted" class="material-icons">expand_less</i>
+          <i *ngIf="!list.showCompleted" class="material-icons">expand_more</i>
+        </button>
+
+        <mat-selection-list *ngIf="list.showCompleted">
           <mat-list-option *ngFor="let listItem of list.items | callback: isCompleted" [selected]="true" (click)="changeItemState(list.list.id, listItem, 1)">
             <span style="text-decoration: line-through;">{{listItem.n}}</span>
           </mat-list-option>
