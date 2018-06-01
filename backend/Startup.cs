@@ -18,10 +18,12 @@ namespace backend
 {
     public class Startup
     {
+        private readonly IHostingEnvironment env;
         private readonly IConfigurationRoot Configuration;
 
         public Startup(IHostingEnvironment env)
         {
+            this.env = env;
             Configuration = BuildConfiguration();
         }
 
@@ -56,7 +58,7 @@ namespace backend
             services.AddApplicationInsightsTelemetry();
             services.AddBot<ShoppingListBot>(options =>
             {
-                options.CredentialProvider = new BotCredentialProvider(new SecretStore(null));
+                options.CredentialProvider = new BotCredentialProvider(new SecretStore(null), env.IsDevelopment());
             });
 
             services.AddMvc();

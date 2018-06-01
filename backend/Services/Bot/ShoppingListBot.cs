@@ -12,7 +12,7 @@ namespace backend.Services.Bot
     {
         public async Task OnTurn(ITurnContext context)
         {
-            var state = ConversationState<Dictionary<string, object>>.Get(context);
+            var state = new Dictionary<string, object>();
             var prompt = new TextPrompt();
             var options = new PromptOptions { PromptString = "Hello, I'm the demo bot. What is your name?" };
 

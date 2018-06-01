@@ -9,10 +9,12 @@ namespace backend.Services.Bot
     public class BotCredentialProvider : Microsoft.Bot.Connector.Authentication.ICredentialProvider
     {
         private readonly ISecretStore secrets;
+        private readonly bool isDevelopment;
 
-        public BotCredentialProvider(ISecretStore secrets)
+        public BotCredentialProvider(ISecretStore secrets, bool isDevelopment)
         {
             this.secrets = secrets;
+            this.isDevelopment = isDevelopment;
         }
 
         public Task<string> GetAppPasswordAsync(string appId)
@@ -22,7 +24,7 @@ namespace backend.Services.Bot
 
         public Task<bool> IsAuthenticationDisabledAsync()
         {
-            return Task.FromResult(false);
+            return Task.FromResult(isDevelopment);
         }
 
         public Task<bool> IsValidAppIdAsync(string appId)
