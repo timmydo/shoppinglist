@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using backend.Middleware;
 using backend.Models;
 using backend.Models.Config;
 using backend.Services.Infrastructure;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using backend.Services.Bot;
+using backend.Services.Database;
+using System.Collections.Generic;
 
 namespace backend
 {
@@ -32,6 +30,11 @@ namespace backend
             var baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             return new ConfigurationBuilder()
                 .SetBasePath(baseDir)
+                .AddInMemoryCollection(new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("MicrosoftAppId", ""),
+                    new KeyValuePair<string, string>("MicrosoftAppPassword", ""),
+                })
                 .AddIniFile("config.ini", optional: false)
                 .AddEnvironmentVariables()
                 .Build();
@@ -47,10 +50,15 @@ namespace backend
             services.Configure<DatabaseSettings>(Configuration.GetSection(Constants.ConfigurationSections.Database));
             services.Configure<SecretSettings>(Configuration.GetSection(Constants.ConfigurationSections.Secrets));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            
             ConfigureAuth(services);
 
             services.AddApplicationInsightsTelemetry();
+            services.AddBot<ShoppingListBot>(options =>
+            {
+                options.CredentialProvider = new BotCredentialProvider(new SecretStore(null));
+            });
+
             services.AddMvc();
         }
 
@@ -85,10 +93,19 @@ namespace backend
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseAuthentication();
+            app.UseWhen(c => c.Request.Path.StartsWithSegments("/api/v1"),
+                        subapp =>
+                        {
+                            subapp.UseAuthentication();
+                        });
+
             // app.UseMiddleware<TimeoutMiddleware>(25000);
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
+
+            app.UseBotFramework();
+
             app.UseMvc();
         }
     }

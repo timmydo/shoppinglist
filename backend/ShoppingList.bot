@@ -1,0 +1,14 @@
+{
+    "name": "ShoppingList-Bot",
+    "secretKey": "",
+    "services": [
+        {
+            "type": "endpoint",
+            "name": "ShoppingList-Bot",
+            "id": "http://localhost:57193/api/messages",
+            "appId": "",
+            "appPassword": "",
+            "endpoint": "http://localhost:57193/api/messages"
+        }
+    ]
+}
