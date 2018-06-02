@@ -89,7 +89,12 @@ namespace backend.Services.Api
                 }
             }
 
-            await database.Write(user);
+
+            if (toAdd.Any() || toRemove.Any())
+            {
+                await database.Write(user);
+            }
+
             response.Lists = user.Lists;
             return response;
         }
@@ -155,7 +160,7 @@ namespace backend.Services.Api
                         else
                         {
 
-                            listObject.Items = listObject.Items.Where(li => !string.Equals(li.Name, mark.Item.Name)).ToList();
+                            listObject.Items = listObject.Items.Where(li => !string.Equals(li.Name, mark.Item.Name, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(li.Name)).ToList();
                             if (mark.Item.State != ListItemStates.Deleted)
                             {
                                 listObject.Items.Add(mark.Item);
