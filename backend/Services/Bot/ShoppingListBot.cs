@@ -2,10 +2,7 @@ using Microsoft.Bot;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Core.Extensions;
-using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
-using System;
 using backend.Interfaces.Auth;
 using backend.Interfaces.Api;
 using backend.Models.Requests;
@@ -45,7 +42,7 @@ namespace backend.Services.Bot
 
         private async Task HandleRequest(ITurnContext context, string untrimmedRequest)
         {
-            var request = untrimmedRequest.Trim().ToLowerInvariant();
+            var request = untrimmedRequest.Trim();
             var user = GetUserId(context.Activity);
             var res = await userApi.GetAccount(user);
             if (res == null)

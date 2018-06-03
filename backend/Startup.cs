@@ -35,7 +35,6 @@ namespace backend
                 .AddInMemoryCollection(new List<KeyValuePair<string, string>>()
                 {
                     new KeyValuePair<string, string>("MicrosoftAppId", ""),
-                    new KeyValuePair<string, string>("MicrosoftAppPassword", ""),
                 })
                 .AddIniFile("config.ini", optional: false)
                 .AddEnvironmentVariables()
